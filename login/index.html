@@ -1,1 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login — LinkVRFz</title>
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+
+<h2>Login / Register</h2>
+
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<button id="loginBtn">Login</button>
+<button id="registerBtn">Register</button>
+
+<script type="module">
+  import { login, register, initAuthGuard } from "/js/auth.js";
+
+  initAuthGuard(true);
+
+  document.getElementById("loginBtn").onclick = () => {
+    login(email.value, password.value).catch(alert);
+  };
+
+  document.getElementById("registerBtn").onclick = () => {
+    register(email.value, password.value).catch(alert);
+  };
+</script>
+
+</body>
+</html>
 
