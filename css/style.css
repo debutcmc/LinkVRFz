@@ -24,6 +24,17 @@ body {
   border-bottom: 1px solid #222;
 }
 
+.nav nav a {
+  margin-left: 16px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.nav nav a:hover {
+  color: #00ffae;
+}
+
 .logo {
   font-weight: bold;
   font-size: 18px;
@@ -96,7 +107,7 @@ body {
 }
 
 /* ============================= */
-/* FILE CARD (GO PAGE) */
+/* FILE CARD */
 /* ============================= */
 
 .file-card {
@@ -125,7 +136,7 @@ body {
 }
 
 /* ============================= */
-/* TASK CARD (MEDIUM MODE) */
+/* TASK CARD */
 /* ============================= */
 
 .task-card {
@@ -193,43 +204,87 @@ body {
 }
 
 /* ============================= */
-/* GENERATED LINK LIST */
+/* HOMEPAGE */
 /* ============================= */
 
-.list-area {
-  margin-top: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.hero {
+  text-align: center;
+  padding: 80px 20px;
 }
 
-.link-card {
-  background: #111;
-  border: 1px solid #222;
-  border-radius: 10px;
-  padding: 16px;
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 14px;
 }
 
-.link-card .row {
-  font-size: 14px;
-  margin-bottom: 6px;
-  color: #ccc;
-}
-
-.link-card .row strong {
+.hero h1 span {
   color: #00ffae;
 }
 
-.copy-btn {
-  margin-top: 10px;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: none;
+.hero p {
+  font-size: 15px;
+  color: #bbb;
+  max-width: 520px;
+  margin: 0 auto 28px;
+}
+
+.hero-btn {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.btn.primary {
   background: #00ffae;
   color: #000;
-  font-weight: bold;
-  cursor: pointer;
+}
+
+.btn.secondary {
+  border: 1px solid #00ffae;
+  color: #00ffae;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.features .card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.features .card h3 {
+  margin-bottom: 8px;
+}
+
+.features .card p {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.footer {
+  margin-top: 60px;
+  padding: 20px;
+  text-align: center;
   font-size: 13px;
+  color: #666;
+  border-top: 1px solid #222;
 }
 
 /* ============================= */
@@ -239,5 +294,9 @@ body {
 @media (max-width: 600px) {
   .workspace {
     margin-top: 24px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
   }
 }
