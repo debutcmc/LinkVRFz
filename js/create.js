@@ -1,62 +1,48 @@
 function generateLink() {
-  const toInput = document.getElementById("to");
+  const to = document.getElementById("to").value.trim();
+  const name = document.getElementById("name").value.trim() || "Untitled";
   const mode = document.getElementById("mode").value;
-  const resultBox = document.getElementById("result");
+  const result = document.getElementById("result");
+  const list = document.getElementById("list");
 
-  const to = toInput.value.trim();
-
-  // validasi kosong
   if (!to) {
-    resultBox.innerHTML = `<span style="color:#ff6b6b;">❌ Link download wajib diisi</span>`;
+    result.innerHTML = "❌ Link wajib diisi";
     return;
   }
 
-  // validasi URL sederhana
+  let url;
   try {
-    new URL(to);
+    url = new URL(to);
   } catch {
-    resultBox.innerHTML = `<span style="color:#ff6b6b;">❌ Format link tidak valid</span>`;
+    result.innerHTML = "❌ Link tidak valid";
     return;
   }
 
-  const encodedTo = encodeURIComponent(to);
-  const baseUrl = window.location.origin;
+  const id = Math.random().toString(36).substring(2, 10);
+  const finalLink =
+    `${location.origin}/download/go?id=${id}&mode=${mode}&to=${encodeURIComponent(to)}`;
 
-  // generate ID simpel (biar keliatan niat)
-  const id = Math.random().toString(36).substring(2, 8);
-
-  const finalLink = `${baseUrl}/download/go?to=${encodedTo}&mode=${mode}&id=${id}`;
-
-  resultBox.innerHTML = `
-    <div style="margin-bottom:8px;color:#00ffae;font-weight:bold;">
-      ✅ Link berhasil dibuat
-    </div>
-
-    <input
-      id="generatedLink"
-      value="${finalLink}"
-      readonly
-      style="width:100%;padding:10px;border-radius:6px;border:1px solid #222;background:#0f0f0f;color:#fff;"
-    >
-
-    <button
-      onclick="copyLink()"
-      style="margin-top:10px;width:100%;padding:10px;border-radius:6px;background:#00ffae;color:#000;font-weight:bold;border:none;cursor:pointer;"
-    >
-      Copy Link
-    </button>
-
-    <small style="color:#888;display:block;margin-top:6px;">
-      Mode: <b>${mode.toUpperCase()}</b> • ID: ${id}
-    </small>
+  // tampilkan hasil cepat
+  result.innerHTML = `
+    <strong>Link terbaru:</strong><br>
+    <input value="${finalLink}" onclick="this.select()" style="width:100%;padding:8px;">
   `;
+
+  // tambah card ke bawah
+  const card = document.createElement("div");
+  card.className = "link-card";
+  card.innerHTML = `
+    <div class="link-row"><strong>Nama:</strong> ${name}</div>
+    <div class="link-row"><strong>File:</strong> ${url.pathname.split("/").pop()}</div>
+    <div class="link-row"><strong>Type:</strong> ${mode}</div>
+    <div class="link-row"><strong>Link:</strong> ${finalLink}</div>
+    <button class="copy-btn" onclick="copyText('${finalLink}')">Copy</button>
+  `;
+
+  list.prepend(card);
 }
 
-function copyLink() {
-  const input = document.getElementById("generatedLink");
-  input.select();
-  input.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-
-  alert("Link berhasil dicopy!");
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  alert("Link dicopy");
 }
