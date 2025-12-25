@@ -1,74 +1,74 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create — LinkVRFz</title>
+function generateLink() {
+  const to = document.getElementById("to").value.trim();
+  const name = document.getElementById("name").value.trim() || "Untitled";
+  const mode = document.getElementById("mode").value;
 
-  <!-- GLOBAL STYLE -->
-  <link rel="stylesheet" href="/css/style.css">
+  if (!isValidUrl(to)) {
+    showMainResult("❌ Format link tidak valid");
+    return;
+  }
 
-  <!-- PAGE SCRIPT -->
-  <script src="/js/create.js" defer></script>
-</head>
-<body>
+  const base = window.location.origin;
+  const finalLink =
+    `${base}/download/go?to=${encodeURIComponent(to)}&mode=${mode}`;
 
-<!-- DASHBOARD NAV -->
-<header class="dash-nav">
-  <div class="logo">LinkVRFz</div>
-  <span class="badge">Dashboard</span>
-</header>
+  const fileType = detectFileType(to);
 
-<!-- CREATOR WORKSPACE -->
-<main class="workspace">
+  showMainResult(`
+    <strong>Link berhasil dibuat</strong><br><br>
+    <input value="${finalLink}" onclick="this.select()" style="width:100%;padding:10px">
+    <small>Klik untuk copy</small>
+  `);
 
-  <!-- TITLE -->
-  <h2 style="margin-bottom:8px;">Generate Verified Link</h2>
-  <p style="color:#aaa;font-size:14px;margin-bottom:12px;">
-    Tempel link file kamu, pilih mode, lalu generate link verifikasi
-  </p>
+  addHistoryCard(name, fileType, mode, finalLink);
+}
 
-  <!-- INPUT LINK -->
-  <input
-    id="to"
-    type="url"
-    class="big-input"
-    placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)"
-    required
-  >
+/* ============================= */
+/* UTIL */
+/* ============================= */
 
-  <!-- INPUT NAME -->
-  <input
-    id="name"
-    type="text"
-    class="big-input"
-    placeholder="Nama link (contoh: Addon Keren MC)"
-    required
-  >
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-  <!-- MODE SELECT -->
-  <select id="mode" class="big-select">
-    <option value="easy">Easy (cepat)</option>
-    <option value="medium" selected>Medium (rekomendasi)</option>
-    <option value="hard">Hard (maksimal)</option>
-  </select>
+function detectFileType(url) {
+  const lower = url.toLowerCase();
+  if (lower.includes(".apk")) return "APK";
+  if (lower.includes(".zip")) return "ZIP";
+  if (lower.includes(".mcaddon")) return "MC ADDON";
+  if (lower.includes("drive.google")) return "DRIVE FILE";
+  return "FILE";
+}
 
-  <!-- GENERATE BUTTON -->
-  <button class="big-btn" onclick="generateLink()">
-    GENERATE LINK
-  </button>
+/* ============================= */
+/* UI HANDLER */
+/* ============================= */
 
-  <!-- RESULT AREA -->
-  <div id="mainResult" class="result-area">
-    Hasil link akan muncul di sini
-  </div>
+function showMainResult(html) {
+  document.getElementById("mainResult").innerHTML = html;
+}
 
-  <!-- GENERATED LINK LIST -->
-  <div class="list-area" id="historyList">
-    <!-- link-card akan di-inject oleh JS -->
-  </div>
+function addHistoryCard(name, type, mode, link) {
+  const card = document.createElement("div");
+  card.className = "link-card";
 
-</main>
+  card.innerHTML = `
+    <div class="row"><strong>Nama:</strong> ${name}</div>
+    <div class="row"><strong>Type:</strong> ${type}</div>
+    <div class="row"><strong>Mode:</strong> ${mode}</div>
+    <div class="row"><strong>Link:</strong></div>
+    <div class="row" style="word-break:break-all">${link}</div>
+    <button class="copy-btn" onclick="copyText('${link}')">COPY</button>
+  `;
 
-</body>
-</html>
+  document.getElementById("historyList").prepend(card);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+}
