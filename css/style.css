@@ -252,19 +252,76 @@ body {
 }
 
 /* ============================= */
-/* LINK CARD LIST */
+/* CREATOR DASHBOARD WORKSPACE */
+/* ============================= */
+
+.workspace {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* INPUT AREA */
+.big-input,
+.big-select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #222;
+  background: #0f0f0f;
+  color: #fff;
+  font-size: 15px;
+}
+
+.big-input::placeholder {
+  color: #666;
+}
+
+.big-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #00ffae;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.big-btn:hover {
+  opacity: 0.9;
+}
+
+/* RESULT AREA (AREA LUAS) */
+.result-area {
+  background: #161616;
+  border-radius: 10px;
+  padding: 18px;
+  font-size: 14px;
+  word-break: break-all;
+  border: 1px dashed #333;
+  min-height: 80px;
+}
+
+/* ============================= */
+/* GENERATED LINK LIST (CARDS) */
 /* ============================= */
 
 .list-area {
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .link-card {
   background: #111;
   border: 1px solid #222;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 16px;
 }
 
@@ -278,15 +335,22 @@ body {
   color: #00ffae;
 }
 
+.link-card .link {
+  word-break: break-all;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
 .copy-btn {
   margin-top: 10px;
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: 6px;
   border: none;
   background: #00ffae;
   color: #000;
   font-weight: bold;
   cursor: pointer;
+  font-size: 13px;
 }
 
 /* MOBILE */
@@ -295,4 +359,3 @@ body {
     margin-top: 24px;
   }
 }
-
