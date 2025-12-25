@@ -13,54 +13,56 @@
 </head>
 <body>
 
-<!-- DASHBOARD NAV -->
-<header class="dash-nav">
-  <div class="logo">LinkVRFz</div>
-  <span class="badge">Dashboard</span>
-</header>
+  <!-- DASHBOARD NAV -->
+  <header class="dash-nav">
+    <div class="logo">LinkVRFz</div>
+    <span class="badge">Dashboard</span>
+  </header>
 
-<!-- CREATOR WORKSPACE -->
-<main class="workspace">
+  <!-- CREATOR WORKSPACE -->
+  <main class="workspace">
 
-  <!-- INPUT LINK -->
-  <input
-    id="to"
-    type="url"
-    class="big-input"
-    placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)"
-  >
+    <!-- INPUT LINK -->
+    <input
+      id="to"
+      type="url"
+      class="big-input"
+      placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)"
+    >
 
-  <!-- INPUT NAME -->
-  <input
-    id="name"
-    type="text"
-    class="big-input"
-    placeholder="Nama link (contoh: Addon Keren MC)"
-  >
+    <!-- INPUT NAME -->
+    <input
+      id="name"
+      type="text"
+      class="big-input"
+      placeholder="Nama link (contoh: Addon Keren MC)"
+    >
 
-  <!-- MODE SELECT -->
-  <select id="mode" class="big-select">
-    <option value="easy">Easy</option>
-    <option value="medium" selected>Medium</option>
-    <option value="hard">Hard</option>
-  </select>
+    <!-- MODE SELECT -->
+    <select id="mode" class="big-select">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    >
 
-  <!-- GENERATE BUTTON -->
-  <button class="big-btn" onclick="generateLink()">
-    GENERATE
-  </button>
+    </select>
 
-  <!-- RESULT AREA -->
-  <div id="mainResult" class="result-area">
-    Hasil link akan muncul di sini
-  </div>
+    <!-- GENERATE BUTTON -->
+    <button class="big-btn" onclick="generateLink()">
+      GENERATE
+    </button>
 
-  <!-- GENERATED LINK LIST -->
-  <div class="list-area" id="historyList">
-    <!-- link-card akan di-inject oleh JS -->
-  </div>
+    <!-- RESULT AREA -->
+    <div id="mainResult" class="result-area">
+      Hasil link akan muncul di sini
+    </div>
 
-</main>
+    <!-- GENERATED LINK LIST -->
+    <div class="list-area" id="historyList">
+      <!-- link-card di-inject oleh JS -->
+    </div>
+
+  </main>
 
 </body>
 </html>
