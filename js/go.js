@@ -1,24 +1,42 @@
+/* =====================================================
+   LINKVRFz - GO.JS (FINAL)
+   ===================================================== */
+
+/* ============================= */
+/* GLOBAL STATE */
+/* ============================= */
 let targetUrl = "#";
-let tasksDone = [];
 let totalTask = 3;
+let tasksDone = [];
 
 /* ============================= */
 /* GET PARAMS */
 /* ============================= */
-const params = new URLSearchParams(location.search);
+const params = new URLSearchParams(window.location.search);
 const to = params.get("to");
 const mode = params.get("mode") || "medium";
 
 if (to) {
-  targetUrl = decodeURIComponent(to);
+  try {
+    targetUrl = decodeURIComponent(to);
+  } catch {
+    targetUrl = to;
+  }
 }
 
 /* ============================= */
 /* MODE CONFIG */
 /* ============================= */
-if (mode === "easy") totalTask = 1;
-if (mode === "medium") totalTask = 3;
-if (mode === "hard") totalTask = 5;
+switch (mode) {
+  case "easy":
+    totalTask = 1;
+    break;
+  case "hard":
+    totalTask = 5;
+    break;
+  default:
+    totalTask = 3; // medium
+}
 
 tasksDone = new Array(totalTask).fill(false);
 
@@ -44,7 +62,26 @@ function showFileCard() {
   setTimeout(() => {
     hide("stepFile");
     show("stepTask");
+    renderTasks();
   }, 2000);
+}
+
+/* ============================= */
+/* RENDER TASK BASED ON MODE */
+/* ============================= */
+function renderTasks() {
+  const container = document.getElementById("stepTask");
+  if (!container) return;
+
+  const taskEls = container.querySelectorAll(".task");
+
+  taskEls.forEach((el, i) => {
+    if (i >= totalTask) {
+      el.style.display = "none";
+    } else {
+      el.style.display = "block";
+    }
+  });
 }
 
 /* ============================= */
@@ -56,7 +93,10 @@ function completeTask(i) {
   tasksDone[i] = true;
 
   const taskEls = document.querySelectorAll(".task");
-  if (taskEls[i]) taskEls[i].classList.add("done");
+  if (taskEls[i]) {
+    taskEls[i].classList.add("done");
+    taskEls[i].innerText = "✔ Selesai";
+  }
 
   updateProgress();
 }
@@ -90,10 +130,11 @@ window.addEventListener("scroll", () => {
   const btn = document.getElementById("downloadBtn");
 
   if (!article || article.style.display === "none") return;
+  if (!btn) return;
 
   if (
     window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 20
+    document.body.offsetHeight - 30
   ) {
     btn.style.display = "block";
   }
@@ -127,8 +168,16 @@ function hide(id) {
 function extractFileName(url) {
   try {
     const u = new URL(url);
-    const name = u.pathname.split("/").pop();
-    return name || "Download File";
+
+    // Google Drive
+    if (u.hostname.includes("drive.google.com")) {
+      return "Google Drive File";
+    }
+
+    let name = u.pathname.split("/").pop();
+    if (!name) return "Download File";
+
+    return decodeURIComponent(name);
   } catch {
     return "Download File";
   }
