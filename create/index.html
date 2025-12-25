@@ -5,43 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Create — LinkVRFz</title>
 
+  <!-- GLOBAL STYLE -->
   <link rel="stylesheet" href="/css/style.css">
+
+  <!-- PAGE SCRIPT -->
   <script src="/js/create.js" defer></script>
 </head>
 <body>
 
+<!-- DASHBOARD NAV -->
 <header class="dash-nav">
   <div class="logo">LinkVRFz</div>
   <span class="badge">Dashboard</span>
 </header>
 
-<main class="dash-wrapper">
+<!-- CREATOR WORKSPACE -->
+<main class="workspace">
 
-  <!-- MAIN GENERATOR AREA -->
-  <section class="generator-box">
-    <h2>Generate Verified Link</h2>
+  <!-- INPUT LINK -->
+  <input
+    id="to"
+    type="url"
+    class="big-input"
+    placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)"
+  >
 
-    <input id="to" type="url" placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)">
-    <input id="name" type="text" placeholder="Nama link (contoh: Addon Keren MC)">
+  <!-- INPUT NAME -->
+  <input
+    id="name"
+    type="text"
+    class="big-input"
+    placeholder="Nama link (contoh: Addon Keren MC)"
+  >
 
-    <select id="mode">
-      <option value="easy">Easy</option>
-      <option value="medium" selected>Medium</option>
-      <option value="hard">Hard</option>
-    </select>
+  <!-- MODE SELECT -->
+  <select id="mode" class="big-select">
+    <option value="easy">Easy</option>
+    <option value="medium" selected>Medium</option>
+    <option value="hard">Hard</option>
+  </select>
 
-    <button onclick="generateLink()">GENERATE</button>
+  <!-- GENERATE BUTTON -->
+  <button class="big-btn" onclick="generateLink()">
+    GENERATE
+  </button>
 
-    <div id="mainResult" class="main-result">
-      Hasil link akan muncul di sini
-    </div>
-  </section>
+  <!-- RESULT AREA -->
+  <div id="mainResult" class="result-area">
+    Hasil link akan muncul di sini
+  </div>
 
-  <!-- HISTORY / CARD LIST -->
-  <section class="history">
-    <h3>Generated Links</h3>
-    <div id="historyList"></div>
-  </section>
+  <!-- GENERATED LINK LIST -->
+  <div class="list-area" id="historyList">
+    <!-- link-card akan di-inject oleh JS -->
+  </div>
 
 </main>
 
