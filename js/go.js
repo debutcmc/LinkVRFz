@@ -1,5 +1,5 @@
 /* =====================================================
-   LINKVRFz - GO.JS (PRO LOCKER UPGRADE)
+   LINKVRFz - GO.JS (PRO LOCKER - FIXED)
    ===================================================== */
 
 /* ============================= */
@@ -112,8 +112,11 @@ function startTask(index) {
   const task = document.querySelectorAll(".task")[index];
   if (!task) return;
 
-  // 🔥 BUKA SMARTLINK / IKLAN
-  window.open("https://pl28332833.effectivegatecpm.com/3c/11/be/3c11be954c21e2bc097ee0436eadf3a2.js", "_blank");
+  /* 🔥 BUKA SMARTLINK (BENAR) */
+  window.open(
+    "https://www.effectivegatecpm.com/h06jd728?key=243d13fa860cbf346b1d7cc99aa435f9",
+    "_blank"
+  );
 
   let seconds = 8 + index * 4; // makin bawah makin lama
   task.innerText = `⏳ Memverifikasi (${seconds}s)`;
@@ -133,11 +136,11 @@ function startTask(index) {
 /* ============================= */
 /* COMPLETE TASK */
 /* ============================= */
-function completeTask(i) {
-  tasksDone[i] = true;
+function completeTask(index) {
+  tasksDone[index] = true;
 
   const tasks = document.querySelectorAll(".task");
-  const task = tasks[i];
+  const task = tasks[index];
 
   task.classList.add("done");
   task.innerText = "✔ Task selesai";
