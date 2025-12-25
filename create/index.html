@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Creator Dashboard — LinkVRFz</title>
+  <title>Dashboard — LinkVRFz</title>
 
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/create.js" defer></script>
@@ -11,42 +11,46 @@
 <body>
 
   <!-- TOP BAR -->
-  <header class="dash-nav">
+  <header class="top">
     <div class="logo">LinkVRFz</div>
-    <span class="badge">Creator Dashboard</span>
+    <div class="title">Dashboard</div>
   </header>
 
-  <!-- DASHBOARD -->
-  <main class="dash-container">
+  <!-- WORKSPACE -->
+  <main class="workspace">
 
-    <section class="dash-card">
-      <h2>Create Verified Link</h2>
-      <p class="sub">Generate link download dengan sistem verifikasi</p>
+    <input
+      id="to"
+      type="url"
+      placeholder="Tempel link download di sini…"
+      class="big-input"
+    >
 
-      <div class="field">
-        <label>Link Asli</label>
-        <input id="to" type="url" placeholder="https://drive.google.com/..." />
-      </div>
+    <input
+      id="name"
+      type="text"
+      placeholder="Nama link (contoh: DebutCMC)"
+      class="big-input"
+    >
 
-      <div class="field">
-        <label>Mode Iklan</label>
-        <select id="mode">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </div>
+    <select id="mode" class="big-select">
+      <option value="easy">Easy</option>
+      <option value="medium" selected>Medium</option>
+      <option value="hard">Hard</option>
+    </select>
 
-      <button class="btn primary full" onclick="generateLink()">
-        Generate Link
-      </button>
-    </section>
+    <button class="big-btn" onclick="generateLink()">
+      Generate
+    </button>
 
-    <section class="dash-card output">
-      <h3>Result</h3>
-      <div id="result" class="output-box">
-        Belum ada link
-      </div>
+    <!-- HASIL CEPAT -->
+    <div id="result" class="result-area">
+      <!-- link terakhir muncul di sini -->
+    </div>
+
+    <!-- LIST CARD -->
+    <section id="list" class="list-area">
+      <!-- card-card generate -->
     </section>
 
   </main>
