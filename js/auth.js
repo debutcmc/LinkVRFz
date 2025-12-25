@@ -1,4 +1,5 @@
-import { auth, db } from "./firebase.js";
+// /js/auth.js
+import { auth } from "./firebase.js";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -6,72 +7,65 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-import {
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+/* ========================= */
+/* LOGIN */
+/* ========================= */
+export function login(email, password) {
+  if (!email || !password) {
+    return Promise.reject("Email & password wajib diisi");
+  }
 
-/* =========================
-   AUTH STATE LISTENER
-========================= */
-export function initAuthGuard(redirectIfLogged = false) {
-  onAuthStateChanged(auth, (user) => {
-    const path = window.location.pathname;
-
-    if (!user && path !== "/login/") {
-      window.location.href = "/login/";
-    }
-
-    if (user && redirectIfLogged) {
+  return signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
       window.location.href = "/dashboard/";
-    }
-  });
+    });
 }
 
-/* =========================
-   REGISTER
-========================= */
-export async function register(email, password) {
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
+/* ========================= */
+/* REGISTER */
+/* ========================= */
+export function register(email, password) {
+  if (!email || !password) {
+    return Promise.reject("Email & password wajib diisi");
+  }
 
-  await setDoc(doc(db, "users", cred.user.uid), {
-    email,
-    coins: 0,
-    createdAt: serverTimestamp(),
-    plan: "free",
-    freeTrialLeft: 5
-  });
+  if (password.length < 6) {
+    return Promise.reject("Password minimal 6 karakter");
+  }
 
-  window.location.href = "/dashboard/";
+  return createUserWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      window.location.href = "/dashboard/";
+    });
 }
 
-/* =========================
-   LOGIN
-========================= */
-export async function login(email, password) {
-  await signInWithEmailAndPassword(auth, email, password);
-  window.location.href = "/dashboard/";
-}
-
-/* =========================
-   LOGOUT
-========================= */
+/* ========================= */
+/* LOGOUT */
+/* ========================= */
 export function logout() {
-  signOut(auth).then(() => {
+  return signOut(auth).then(() => {
     window.location.href = "/login/";
   });
 }
 
-/* =========================
-   GET CURRENT USER DATA
-========================= */
-export async function getCurrentUserData() {
-  const user = auth.currentUser;
-  if (!user) return null;
+/* ========================= */
+/* AUTH GUARD */
+/* ========================= */
+/**
+ * @param {boolean} isAuthPage
+ * true  → halaman login
+ * false → halaman protected (dashboard, create, go)
+ */
+export function initAuthGuard(isAuthPage = false) {
+  onAuthStateChanged(auth, (user) => {
+    if (isAuthPage && user) {
+      // sudah login tapi buka login page
+      window.location.href = "/dashboard/";
+    }
 
-  const snap = await getDoc(doc(db, "users", user.uid));
-  return snap.exists() ? snap.data() : null;
+    if (!isAuthPage && !user) {
+      // belum login tapi buka page protected
+      window.location.href = "/login/";
+    }
+  });
 }
-
