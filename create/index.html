@@ -3,57 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard — LinkVRFz</title>
+  <title>Create — LinkVRFz</title>
 
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/create.js" defer></script>
 </head>
 <body>
 
-  <!-- TOP BAR -->
-  <header class="top">
-    <div class="logo">LinkVRFz</div>
-    <div class="title">Dashboard</div>
-  </header>
+<header class="dash-nav">
+  <div class="logo">LinkVRFz</div>
+  <span class="badge">Dashboard</span>
+</header>
 
-  <!-- WORKSPACE -->
-  <main class="workspace">
+<main class="dash-wrapper">
 
-    <input
-      id="to"
-      type="url"
-      placeholder="Tempel link download di sini…"
-      class="big-input"
-    >
+  <!-- MAIN GENERATOR AREA -->
+  <section class="generator-box">
+    <h2>Generate Verified Link</h2>
 
-    <input
-      id="name"
-      type="text"
-      placeholder="Nama link (contoh: DebutCMC)"
-      class="big-input"
-    >
+    <input id="to" type="url" placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)">
+    <input id="name" type="text" placeholder="Nama link (contoh: Addon Keren MC)">
 
-    <select id="mode" class="big-select">
+    <select id="mode">
       <option value="easy">Easy</option>
       <option value="medium" selected>Medium</option>
       <option value="hard">Hard</option>
     </select>
 
-    <button class="big-btn" onclick="generateLink()">
-      Generate
-    </button>
+    <button onclick="generateLink()">GENERATE</button>
 
-    <!-- HASIL CEPAT -->
-    <div id="result" class="result-area">
-      <!-- link terakhir muncul di sini -->
+    <div id="mainResult" class="main-result">
+      Hasil link akan muncul di sini
     </div>
+  </section>
 
-    <!-- LIST CARD -->
-    <section id="list" class="list-area">
-      <!-- card-card generate -->
-    </section>
+  <!-- HISTORY / CARD LIST -->
+  <section class="history">
+    <h3>Generated Links</h3>
+    <div id="historyList"></div>
+  </section>
 
-  </main>
+</main>
 
 </body>
 </html>
