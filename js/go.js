@@ -1,5 +1,5 @@
 /* =====================================================
-   LINKVRFz - GO.JS (SECURE FLOW)
+   LINKVRFz - GO.JS (PRO LOCKER UPGRADE)
    ===================================================== */
 
 /* ============================= */
@@ -7,8 +7,9 @@
 /* ============================= */
 let targetUrl = "#";
 let totalTask = 3;
-let tasksDone = [];
 let currentTask = 0;
+let tasksDone = [];
+let taskTimer = null;
 
 /* ============================= */
 /* GET PARAMS */
@@ -80,17 +81,29 @@ function initTasks() {
     }
 
     if (i === 0) {
-      task.classList.remove("locked");
-      task.onclick = () => startTask(i);
+      unlockTask(task, i);
     } else {
-      task.classList.add("locked");
-      task.onclick = null;
+      lockTask(task);
     }
   });
 }
 
 /* ============================= */
-/* START TASK (WITH TIMER) */
+/* LOCK / UNLOCK */
+/* ============================= */
+function lockTask(task) {
+  task.classList.add("locked");
+  task.style.pointerEvents = "none";
+}
+
+function unlockTask(task, index) {
+  task.classList.remove("locked");
+  task.style.pointerEvents = "auto";
+  task.onclick = () => startTask(index);
+}
+
+/* ============================= */
+/* START TASK */
 /* ============================= */
 function startTask(index) {
   if (index !== currentTask) return;
@@ -99,16 +112,19 @@ function startTask(index) {
   const task = document.querySelectorAll(".task")[index];
   if (!task) return;
 
-  let seconds = 6 + index * 3; // makin bawah makin lama
-  task.innerText = `⏳ Menunggu ${seconds}s...`;
+  // 🔥 BUKA SMARTLINK / IKLAN
+  window.open("https://pl28332833.effectivegatecpm.com/3c/11/be/3c11be954c21e2bc097ee0436eadf3a2.js", "_blank");
+
+  let seconds = 8 + index * 4; // makin bawah makin lama
+  task.innerText = `⏳ Memverifikasi (${seconds}s)`;
   task.style.pointerEvents = "none";
 
-  const timer = setInterval(() => {
+  taskTimer = setInterval(() => {
     seconds--;
-    task.innerText = `⏳ Menunggu ${seconds}s...`;
+    task.innerText = `⏳ Memverifikasi (${seconds}s)`;
 
     if (seconds <= 0) {
-      clearInterval(timer);
+      clearInterval(taskTimer);
       completeTask(index);
     }
   }, 1000);
@@ -128,10 +144,8 @@ function completeTask(i) {
 
   currentTask++;
 
-  // unlock next task
   if (tasks[currentTask]) {
-    tasks[currentTask].classList.remove("locked");
-    tasks[currentTask].onclick = () => startTask(currentTask);
+    unlockTask(tasks[currentTask], currentTask);
   }
 
   updateProgress();
@@ -151,7 +165,7 @@ function updateProgress() {
     const btn = document.getElementById("taskBtn");
     if (btn) {
       btn.disabled = false;
-      btn.innerText = "LANJUTKAN";
+      btn.innerText = "LANJUTKAN VERIFIKASI";
       btn.onclick = () => {
         hide("stepTask");
         show("stepArticle");
@@ -172,7 +186,7 @@ window.addEventListener("scroll", () => {
 
   if (
     window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 40
+    document.body.offsetHeight - 50
   ) {
     btn.style.display = "block";
   }
