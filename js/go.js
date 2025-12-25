@@ -1,5 +1,5 @@
 /* =====================================================
-   LINKVRFz - GO.JS (FINAL)
+   LINKVRFz - GO.JS (SECURE FLOW)
    ===================================================== */
 
 /* ============================= */
@@ -8,6 +8,7 @@
 let targetUrl = "#";
 let totalTask = 3;
 let tasksDone = [];
+let currentTask = 0;
 
 /* ============================= */
 /* GET PARAMS */
@@ -35,7 +36,7 @@ switch (mode) {
     totalTask = 5;
     break;
   default:
-    totalTask = 3; // medium
+    totalTask = 3;
 }
 
 tasksDone = new Array(totalTask).fill(false);
@@ -46,7 +47,7 @@ tasksDone = new Array(totalTask).fill(false);
 setTimeout(() => {
   hide("stepVerify");
   showFileCard();
-}, 2000);
+}, 2200);
 
 /* ============================= */
 /* STEP 2 → FILE CARD */
@@ -62,45 +63,83 @@ function showFileCard() {
   setTimeout(() => {
     hide("stepFile");
     show("stepTask");
-    renderTasks();
-  }, 2000);
+    initTasks();
+  }, 1800);
 }
 
 /* ============================= */
-/* RENDER TASK BASED ON MODE */
+/* INIT TASKS */
 /* ============================= */
-function renderTasks() {
-  const container = document.getElementById("stepTask");
-  if (!container) return;
+function initTasks() {
+  const tasks = document.querySelectorAll(".task");
 
-  const taskEls = container.querySelectorAll(".task");
-
-  taskEls.forEach((el, i) => {
+  tasks.forEach((task, i) => {
     if (i >= totalTask) {
-      el.style.display = "none";
+      task.style.display = "none";
+      return;
+    }
+
+    if (i === 0) {
+      task.classList.remove("locked");
+      task.onclick = () => startTask(i);
     } else {
-      el.style.display = "block";
+      task.classList.add("locked");
+      task.onclick = null;
     }
   });
 }
 
 /* ============================= */
-/* STEP 3 → TASK */
+/* START TASK (WITH TIMER) */
+/* ============================= */
+function startTask(index) {
+  if (index !== currentTask) return;
+  if (tasksDone[index]) return;
+
+  const task = document.querySelectorAll(".task")[index];
+  if (!task) return;
+
+  let seconds = 6 + index * 3; // makin bawah makin lama
+  task.innerText = `⏳ Menunggu ${seconds}s...`;
+  task.style.pointerEvents = "none";
+
+  const timer = setInterval(() => {
+    seconds--;
+    task.innerText = `⏳ Menunggu ${seconds}s...`;
+
+    if (seconds <= 0) {
+      clearInterval(timer);
+      completeTask(index);
+    }
+  }, 1000);
+}
+
+/* ============================= */
+/* COMPLETE TASK */
 /* ============================= */
 function completeTask(i) {
-  if (tasksDone[i]) return;
-
   tasksDone[i] = true;
 
-  const taskEls = document.querySelectorAll(".task");
-  if (taskEls[i]) {
-    taskEls[i].classList.add("done");
-    taskEls[i].innerText = "✔ Selesai";
+  const tasks = document.querySelectorAll(".task");
+  const task = tasks[i];
+
+  task.classList.add("done");
+  task.innerText = "✔ Task selesai";
+
+  currentTask++;
+
+  // unlock next task
+  if (tasks[currentTask]) {
+    tasks[currentTask].classList.remove("locked");
+    tasks[currentTask].onclick = () => startTask(currentTask);
   }
 
   updateProgress();
 }
 
+/* ============================= */
+/* UPDATE PROGRESS */
+/* ============================= */
 function updateProgress() {
   const done = tasksDone.filter(Boolean).length;
   const percent = Math.round((done / totalTask) * 100);
@@ -112,7 +151,7 @@ function updateProgress() {
     const btn = document.getElementById("taskBtn");
     if (btn) {
       btn.disabled = false;
-      btn.innerText = "GO";
+      btn.innerText = "LANJUTKAN";
       btn.onclick = () => {
         hide("stepTask");
         show("stepArticle");
@@ -130,11 +169,10 @@ window.addEventListener("scroll", () => {
   const btn = document.getElementById("downloadBtn");
 
   if (!article || article.style.display === "none") return;
-  if (!btn) return;
 
   if (
     window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 30
+    document.body.offsetHeight - 40
   ) {
     btn.style.display = "block";
   }
@@ -169,15 +207,12 @@ function extractFileName(url) {
   try {
     const u = new URL(url);
 
-    // Google Drive
     if (u.hostname.includes("drive.google.com")) {
       return "Google Drive File";
     }
 
     let name = u.pathname.split("/").pop();
-    if (!name) return "Download File";
-
-    return decodeURIComponent(name);
+    return name ? decodeURIComponent(name) : "Download File";
   } catch {
     return "Download File";
   }
