@@ -1,12 +1,16 @@
 function generateLink() {
-  const to = document.getElementById("to").value.trim();
-  const name = document.getElementById("name").value.trim() || "Untitled";
-  const mode = document.getElementById("mode").value;
+  const toInput = document.getElementById("to");
+  const nameInput = document.getElementById("name");
+  const modeSelect = document.getElementById("mode");
   const result = document.getElementById("result");
   const list = document.getElementById("list");
 
+  const to = toInput.value.trim();
+  const name = nameInput.value.trim() || "Untitled";
+  const mode = modeSelect.value;
+
   if (!to) {
-    result.innerHTML = "❌ Link wajib diisi";
+    result.innerHTML = "❌ Link download wajib diisi";
     return;
   }
 
@@ -14,35 +18,40 @@ function generateLink() {
   try {
     url = new URL(to);
   } catch {
-    result.innerHTML = "❌ Link tidak valid";
+    result.innerHTML = "❌ Format link tidak valid";
     return;
   }
 
-  const id = Math.random().toString(36).substring(2, 10);
+  const id = Math.random().toString(36).slice(2, 10);
   const finalLink =
     `${location.origin}/download/go?id=${id}&mode=${mode}&to=${encodeURIComponent(to)}`;
 
-  // tampilkan hasil cepat
+  /* RESULT CEPAT */
   result.innerHTML = `
-    <strong>Link terbaru:</strong><br>
-    <input value="${finalLink}" onclick="this.select()" style="width:100%;padding:8px;">
+    <strong>Link berhasil dibuat:</strong><br><br>
+    <input value="${finalLink}" onclick="this.select()" 
+      style="width:100%;padding:10px;border-radius:6px;border:1px solid #222;background:#0f0f0f;color:#fff;">
   `;
 
-  // tambah card ke bawah
+  /* CARD */
   const card = document.createElement("div");
   card.className = "link-card";
+
   card.innerHTML = `
-    <div class="link-row"><strong>Nama:</strong> ${name}</div>
-    <div class="link-row"><strong>File:</strong> ${url.pathname.split("/").pop()}</div>
-    <div class="link-row"><strong>Type:</strong> ${mode}</div>
-    <div class="link-row"><strong>Link:</strong> ${finalLink}</div>
-    <button class="copy-btn" onclick="copyText('${finalLink}')">Copy</button>
+    <div class="row"><strong>Nama:</strong> ${name}</div>
+    <div class="row"><strong>File:</strong> ${url.pathname.split("/").pop() || "-"}</div>
+    <div class="row"><strong>Type:</strong> ${mode}</div>
+    <div class="row"><strong>Link:</strong> ${finalLink}</div>
+    <button class="copy-btn">Copy</button>
   `;
 
-  list.prepend(card);
-}
+  card.querySelector(".copy-btn").onclick = () => {
+    navigator.clipboard.writeText(finalLink);
+    alert("Link berhasil dicopy");
+  };
 
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-  alert("Link dicopy");
+  list.prepend(card);
+
+  /* optional: reset input */
+  toInput.value = "";
 }
