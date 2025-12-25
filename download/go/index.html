@@ -19,37 +19,37 @@
   <span class="badge">Verification</span>
 </header>
 
-<!-- MAIN WORKSPACE -->
+<!-- MAIN -->
 <main class="workspace">
 
-  <!-- STEP 1 : VERIFY -->
+  <!-- STEP 1 -->
   <div id="stepVerify" class="result-area">
-    ⏳ Memverifikasi link...
+    ⏳ Memverifikasi link & session...
   </div>
 
-  <!-- STEP 2 : FILE CARD -->
+  <!-- STEP 2 -->
   <div id="stepFile" class="file-card" style="display:none">
     <div class="file-name" id="fileName">Download File</div>
-    <div class="brand">VRFz</div>
-    <div class="visit">Visited ✓</div>
+    <div class="brand">VRFz Secure</div>
+    <div class="visit">Link validated ✓</div>
   </div>
 
-  <!-- STEP 3 : TASK (MEDIUM) -->
+  <!-- STEP 3 : TASK -->
   <div id="stepTask" class="task-card" style="display:none">
 
-    <div class="task" onclick="completeTask(0)">
-      ▶ Tonton Video
+    <div class="task" data-index="0">
+      ▶ Tonton Video (Wajib)
     </div>
 
-    <div class="task" onclick="completeTask(1)">
-      ▶ Baca Artikel
+    <div class="task locked" data-index="1">
+      🔒 Baca Artikel
     </div>
 
-    <div class="task" onclick="completeTask(2)">
-      ▶ Tonton Video
+    <div class="task locked" data-index="2">
+      🔒 Tonton Video Sponsor
     </div>
 
-    <!-- IKLAN TASK (ADSTERRA) -->
+    <!-- IKLAN TASK -->
     <script src="https://pl28332833.effectivegatecpm.com/3c/11/be/3c11be954c21e2bc097ee0436eadf3a2.js"></script>
 
     <div class="progress">
@@ -57,7 +57,7 @@
     </div>
 
     <button id="taskBtn" class="big-btn" disabled>
-      LOADING...
+      Selesaikan semua task
     </button>
   </div>
 
@@ -66,14 +66,14 @@
     <h2>Artikel Sponsor</h2>
 
     <p>
-      Ini adalah artikel sponsor. Scroll sampai bawah untuk membuka tombol download.
+      Scroll artikel ini sampai selesai untuk membuka tombol download.
     </p>
 
-    <!-- IKLAN ARTIKEL (ADSTERRA) -->
+    <!-- IKLAN ARTIKEL -->
     <script src="https://pl28332833.effectivegatecpm.com/3c/11/be/3c11be954c21e2bc097ee0436eadf3a2.js"></script>
 
-    <!-- SIMULASI ARTIKEL PANJANG -->
-    <div style="height:900px"></div>
+    <!-- SIMULASI ARTIKEL -->
+    <div style="height:1000px"></div>
 
     <button
       id="downloadBtn"
