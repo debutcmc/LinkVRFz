@@ -20,15 +20,17 @@
 
   initAuthGuard(true);
 
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+
   document.getElementById("loginBtn").onclick = () => {
-    login(email.value, password.value).catch(alert);
+    login(emailInput.value, passwordInput.value).catch(alert);
   };
 
   document.getElementById("registerBtn").onclick = () => {
-    register(email.value, password.value).catch(alert);
+    register(emailInput.value, passwordInput.value).catch(alert);
   };
 </script>
 
 </body>
 </html>
-
