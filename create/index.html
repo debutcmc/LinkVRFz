@@ -3,43 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Link — LinkVRFz</title>
+  <title>Creator Dashboard — LinkVRFz</title>
 
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/create.js" defer></script>
 </head>
 <body>
 
-  <header class="nav">
+  <!-- TOP BAR -->
+  <header class="dash-nav">
     <div class="logo">LinkVRFz</div>
-    <nav>
-      <a href="/">Home</a>
-    </nav>
+    <span class="badge">Creator Dashboard</span>
   </header>
 
-  <section class="hero">
-    <h1>Buat Link Verifikasi</h1>
-    <p>Masukkan link asli dan pilih mode iklan</p>
+  <!-- DASHBOARD -->
+  <main class="dash-container">
 
-    <div class="card" style="max-width:480px;margin:32px auto;">
-      <label>Link Asli (Download)</label>
-      <input id="to" type="url" placeholder="https://drive.google.com/..." />
+    <section class="dash-card">
+      <h2>Create Verified Link</h2>
+      <p class="sub">Generate link download dengan sistem verifikasi</p>
 
-      <label style="margin-top:16px;">Mode Iklan</label>
-      <select id="mode">
-        <option value="easy">Easy</option>
-        <option value="medium" selected>Medium</option>
-        <option value="hard">Hard</option>
-      </select>
+      <div class="field">
+        <label>Link Asli</label>
+        <input id="to" type="url" placeholder="https://drive.google.com/..." />
+      </div>
 
-      <button class="btn primary" style="margin-top:20px;" onclick="generateLink()">
+      <div class="field">
+        <label>Mode Iklan</label>
+        <select id="mode">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+
+      <button class="btn primary full" onclick="generateLink()">
         Generate Link
       </button>
+    </section>
 
-      <div id="result" style="margin-top:16px;word-break:break-all;"></div>
-    </div>
-  </section>
+    <section class="dash-card output">
+      <h3>Result</h3>
+      <div id="result" class="output-box">
+        Belum ada link
+      </div>
+    </section>
+
+  </main>
 
 </body>
 </html>
-
