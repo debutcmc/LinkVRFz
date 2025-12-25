@@ -204,6 +204,60 @@ body {
 }
 
 /* ============================= */
+/* GENERATED LINK LIST */
+/* ============================= */
+
+.list-area {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.link-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.link-card .row {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 6px;
+}
+
+.link-card .row strong {
+  color: #00ffae;
+}
+
+.link-card .link {
+  margin-top: 8px;
+  padding: 10px;
+  background: #0f0f0f;
+  border: 1px dashed #333;
+  border-radius: 8px;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.link-card .actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.link-card .actions button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #00ffae;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* ============================= */
 /* HOMEPAGE */
 /* ============================= */
 
