@@ -1,57 +1,64 @@
 function generateLink() {
-  const toInput = document.getElementById("to");
-  const nameInput = document.getElementById("name");
-  const modeSelect = document.getElementById("mode");
-  const result = document.getElementById("result");
-  const list = document.getElementById("list");
+  const to = document.getElementById("to").value.trim();
+  const name = document.getElementById("name").value.trim() || "Untitled";
+  const mode = document.getElementById("mode").value;
 
-  const to = toInput.value.trim();
-  const name = nameInput.value.trim() || "Untitled";
-  const mode = modeSelect.value;
-
-  if (!to) {
-    result.innerHTML = "❌ Link download wajib diisi";
+  if (!isValidUrl(to)) {
+    showMainResult("❌ Format link tidak valid");
     return;
   }
 
-  let url;
+  const base = window.location.origin;
+  const finalLink = `${base}/download/go?to=${encodeURIComponent(to)}&mode=${mode}`;
+
+  const fileType = detectFileType(to);
+
+  showMainResult(`
+    <strong>Link berhasil dibuat</strong><br><br>
+    <input value="${finalLink}" onclick="this.select()" style="width:100%;padding:10px">
+    <small>Klik untuk copy</small>
+  `);
+
+  addHistoryCard(name, fileType, mode, finalLink);
+}
+
+function isValidUrl(url) {
   try {
-    url = new URL(to);
+    new URL(url);
+    return true;
   } catch {
-    result.innerHTML = "❌ Format link tidak valid";
-    return;
+    return false;
   }
+}
 
-  const id = Math.random().toString(36).slice(2, 10);
-  const finalLink =
-    `${location.origin}/download/go?id=${id}&mode=${mode}&to=${encodeURIComponent(to)}`;
+function detectFileType(url) {
+  const lower = url.toLowerCase();
+  if (lower.includes(".apk")) return "APK";
+  if (lower.includes(".zip")) return "ZIP";
+  if (lower.includes(".mcaddon")) return "MC ADDON";
+  if (lower.includes("drive.google")) return "DRIVE FILE";
+  return "FILE";
+}
 
-  /* RESULT CEPAT */
-  result.innerHTML = `
-    <strong>Link berhasil dibuat:</strong><br><br>
-    <input value="${finalLink}" onclick="this.select()" 
-      style="width:100%;padding:10px;border-radius:6px;border:1px solid #222;background:#0f0f0f;color:#fff;">
-  `;
+function showMainResult(html) {
+  document.getElementById("mainResult").innerHTML = html;
+}
 
-  /* CARD */
+function addHistoryCard(name, type, mode, link) {
   const card = document.createElement("div");
-  card.className = "link-card";
-
+  card.className = "history-card";
   card.innerHTML = `
-    <div class="row"><strong>Nama:</strong> ${name}</div>
-    <div class="row"><strong>File:</strong> ${url.pathname.split("/").pop() || "-"}</div>
-    <div class="row"><strong>Type:</strong> ${mode}</div>
-    <div class="row"><strong>Link:</strong> ${finalLink}</div>
-    <button class="copy-btn">Copy</button>
+    <div><span>${name}</span></div>
+    <div>Type: ${type}</div>
+    <div>Mode: ${mode}</div>
+    <div>Link:</div>
+    <div style="word-break:break-all">${link}</div>
+    <div class="copy-btn" onclick="copyText('${link}')">[ Copy ]</div>
   `;
+  document.getElementById("historyList").prepend(card);
+}
 
-  card.querySelector(".copy-btn").onclick = () => {
-    navigator.clipboard.writeText(finalLink);
-    alert("Link berhasil dicopy");
-  };
-
-  list.prepend(card);
-
-  /* optional: reset input */
-  toInput.value = "";
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+  alert("Link disalin!");
 }
