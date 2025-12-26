@@ -1,42 +1,97 @@
-.container {
-  max-width: 480px;
-  margin: 40px auto;
-  padding: 20px;
+/* ============================= */
+/* CREATE PAGE */
+/* ============================= */
+
+.create-page {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
 }
 
-h1 {
-  margin-bottom: 20px;
+.create-card {
+  width: 100%;
+  max-width: 460px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 28px;
 }
 
-label {
+/* ============================= */
+/* TEXT */
+/* ============================= */
+
+.create-card h1 {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 24px;
+}
+
+/* ============================= */
+/* FORM */
+/* ============================= */
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
   display: block;
-  margin-top: 14px;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #ccc;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #222;
+  background: #0f0f0f;
+  color: #fff;
   font-size: 14px;
 }
 
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
+.field input::placeholder {
+  color: #555;
 }
 
-button {
-  margin-top: 20px;
+/* ============================= */
+/* BUTTON */
+/* ============================= */
+
+.btn.full {
   width: 100%;
-  padding: 12px;
-  background: #111;
-  color: #fff;
-  border: none;
-  cursor: pointer;
+  margin-top: 10px;
 }
+
+/* ============================= */
+/* RESULT */
+/* ============================= */
 
 .result {
-  margin-top: 20px;
-  background: #f4f4f4;
-  padding: 12px;
+  margin-top: 24px;
+  background: #0f0f0f;
+  border: 1px dashed #333;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 13px;
 }
 
 .result input {
   width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #222;
+  background: #111;
+  color: #00ffae;
 }
-
