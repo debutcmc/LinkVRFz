@@ -1,5 +1,6 @@
 // /js/auth.js
 import { auth } from "./firebase.js";
+
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -12,13 +13,10 @@ import {
 /* ========================= */
 export function login(email, password) {
   if (!email || !password) {
-    return Promise.reject("Email & password wajib diisi");
+    throw new Error("Email dan password wajib diisi");
   }
 
-  return signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      window.location.href = "/dashboard/";
-    });
+  return signInWithEmailAndPassword(auth, email, password);
 }
 
 /* ========================= */
@@ -26,46 +24,42 @@ export function login(email, password) {
 /* ========================= */
 export function register(email, password) {
   if (!email || !password) {
-    return Promise.reject("Email & password wajib diisi");
+    throw new Error("Email dan password wajib diisi");
   }
 
   if (password.length < 6) {
-    return Promise.reject("Password minimal 6 karakter");
+    throw new Error("Password minimal 6 karakter");
   }
 
-  return createUserWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      window.location.href = "/dashboard/";
-    });
+  return createUserWithEmailAndPassword(auth, email, password);
 }
 
 /* ========================= */
 /* LOGOUT */
 /* ========================= */
 export function logout() {
-  return signOut(auth).then(() => {
-    window.location.href = "/login/";
-  });
+  return signOut(auth);
 }
 
 /* ========================= */
 /* AUTH GUARD */
 /* ========================= */
 /**
- * @param {boolean} isAuthPage
- * true  → halaman login
- * false → halaman protected (dashboard, create, go)
+ * @param {Object} options
+ * options.requireAuth = true  → halaman protected
+ * options.redirectTo = "/login/"
  */
-export function initAuthGuard(isAuthPage = false) {
+export function initAuthGuard({
+  requireAuth = false,
+  redirectTo = "/login/"
+} = {}) {
   onAuthStateChanged(auth, (user) => {
-    if (isAuthPage && user) {
-      // sudah login tapi buka login page
-      window.location.href = "/dashboard/";
+    if (requireAuth && !user) {
+      window.location.href = redirectTo;
     }
 
-    if (!isAuthPage && !user) {
-      // belum login tapi buka page protected
-      window.location.href = "/login/";
+    if (!requireAuth && user) {
+      window.location.href = "/dashboard/";
     }
   });
 }
