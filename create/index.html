@@ -39,12 +39,22 @@
 
       <!-- DESCRIPTION -->
       <div class="field">
-        <label>Deskripsi (opsional)</label>
+        <label>Deskripsi (ditampilkan ke user)</label>
         <textarea
           id="description"
-          placeholder="Deskripsi singkat file / link"
+          placeholder="Contoh: File installer resmi, size 120MB"
           rows="3"
         ></textarea>
+      </div>
+
+      <!-- FILE NAME -->
+      <div class="field">
+        <label>Nama File (Display)</label>
+        <input
+          type="text"
+          id="fileName"
+          placeholder="Software_Premium_v2.1.zip"
+        />
       </div>
 
       <!-- TARGET -->
@@ -70,6 +80,21 @@
         </select>
       </div>
 
+      <!-- EXTRA SECURITY -->
+      <div class="field checkbox-group">
+        <label>Proteksi Tambahan</label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="antiDirect" checked />
+          Anti Direct Access
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="hideUrl" />
+          Sembunyikan Target URL
+        </label>
+      </div>
+
       <!-- DURATION -->
       <div class="field">
         <label>Masa Aktif</label>
@@ -80,6 +105,16 @@
           <option value="90">90 Hari</option>
           <option value="365">1 Tahun</option>
         </select>
+      </div>
+
+      <!-- CREATOR NOTE -->
+      <div class="field">
+        <label>Catatan Internal (creator only)</label>
+        <textarea
+          id="note"
+          placeholder="Contoh: Link untuk campaign Telegram"
+          rows="2"
+        ></textarea>
       </div>
 
       <button type="submit" class="btn primary full">
