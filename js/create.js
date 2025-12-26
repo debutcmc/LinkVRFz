@@ -1,73 +1,63 @@
-import { auth } from "./firebase.js";
-import { initAuthGuard, logout } from "./auth.js";
-import { createLink } from "./db.js";
+// /js/create.js
+import { db, auth } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 import { onAuthStateChanged } from
   "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-initAuthGuard(false);
+let currentUser = null;
 
-/* ========================= */
-/* LOGOUT */
-/* ========================= */
-document.getElementById("logoutBtn").onclick = logout;
-
-/* ========================= */
-/* HELPERS */
-/* ========================= */
-function addDays(days) {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d;
-}
-
-async function hashString(str) {
-  const enc = new TextEncoder().encode(str);
-  const buf = await crypto.subtle.digest("SHA-256", enc);
-  return [...new Uint8Array(buf)]
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-/* ========================= */
-/* CREATE LINK */
-/* ========================= */
 onAuthStateChanged(auth, (user) => {
-  if (!user) return;
+  if (!user) {
+    window.location.href = "/login/";
+  } else {
+    currentUser = user;
+  }
+});
 
-  const form = document.getElementById("createForm");
-  const result = document.getElementById("result");
+window.generateLink = async function () {
+  const title = document.getElementById("name").value.trim();
+  const target = document.getElementById("to").value.trim();
+  const mode = document.getElementById("mode").value;
 
-  form.onsubmit = async (e) => {
-    e.preventDefault();
+  if (!title || !target) {
+    alert("Judul dan link wajib diisi");
+    return;
+  }
 
-    const title = document.getElementById("title").value.trim();
-    const targetUrl = document.getElementById("targetUrl").value.trim();
-    const duration = parseInt(document.getElementById("duration").value);
+  try {
+    new URL(target);
+  } catch {
+    alert("URL tidak valid");
+    return;
+  }
 
-    if (!title || !targetUrl) {
-      alert("Semua field wajib diisi");
-      return;
-    }
-
-    const fileHash = await hashString(targetUrl + user.uid);
-    const expiresAt = addDays(duration);
-
-    const docRef = await createLink(user.uid, {
+  try {
+    const docRef = await addDoc(collection(db, "links"), {
       title,
-      targetUrl,
-      fileHash,
-      expiresAt
+      targetUrl: target,
+      mode,
+      ownerUid: currentUser.uid,
+      createdAt: serverTimestamp(),
+      expireAt: null,
+      clicks: 0,
+      active: true
     });
 
     const finalLink =
       `${location.origin}/go/?id=${docRef.id}`;
 
-    result.style.display = "block";
-    result.innerHTML = `
-      <p>✅ Link berhasil dibuat</p>
-      <input value="${finalLink}" readonly />
+    document.getElementById("mainResult").innerHTML = `
+      <strong>Link berhasil dibuat</strong><br><br>
+      <input value="${finalLink}" onclick="this.select()" style="width:100%;padding:10px">
+      <small>Klik untuk copy</small>
     `;
-
-    form.reset();
-  };
-});
+  } catch (err) {
+    alert("Gagal membuat link");
+    console.error(err);
+  }
+};
