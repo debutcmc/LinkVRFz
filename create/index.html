@@ -13,32 +13,61 @@
 <body>
 
 <header class="nav">
-  <div class="logo">LinkVRFz</div>
-  <button id="logoutBtn">Logout</button>
+  <div class="logo">LinkVRFz <span class="badge">Create</span></div>
 </header>
 
-<main class="container">
-  <h1>Buat Link Baru</h1>
+<main class="create-page">
+  <div class="create-card">
 
-  <form id="createForm">
-    <label>Judul Link</label>
-    <input type="text" id="title" required />
+    <h1>Buat Link Baru</h1>
+    <p class="subtitle">
+      Generate link download dengan sistem verifikasi aman.
+    </p>
 
-    <label>Target URL</label>
-    <input type="url" id="targetUrl" required />
+    <form id="createForm">
 
-    <label>Masa Aktif</label>
-    <select id="duration">
-      <option value="7">7 Hari</option>
-      <option value="30">30 Hari</option>
-      <option value="365">1 Tahun</option>
-    </select>
+      <div class="field">
+        <label>Judul Link</label>
+        <input
+          type="text"
+          id="title"
+          placeholder="Contoh: Software Premium v2.1"
+          required
+        />
+      </div>
 
-    <button type="submit">Generate Link</button>
-  </form>
+      <div class="field">
+        <label>Target URL</label>
+        <input
+          type="url"
+          id="targetUrl"
+          placeholder="https://example.com/file.zip"
+          required
+        />
+      </div>
 
-  <div id="result" class="result" style="display:none"></div>
+      <div class="field">
+        <label>Masa Aktif</label>
+        <select id="duration">
+          <option value="7">7 Hari</option>
+          <option value="30">30 Hari</option>
+          <option value="365">1 Tahun</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn primary full">
+        Generate Link
+      </button>
+    </form>
+
+    <div id="result" class="result" style="display:none"></div>
+
+  </div>
 </main>
+
+<footer class="footer">
+  © 2025 LinkVRFz — Secure Link Generator
+</footer>
 
 </body>
 </html>
