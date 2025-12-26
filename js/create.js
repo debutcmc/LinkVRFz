@@ -1,63 +1,83 @@
-// /js/create.js
-import { db, auth } from "./firebase.js";
-import {
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+/* =====================================================
+   CREATE LINK — LinkVRFz
+   Step 1 : Local Token Generator (TEST MODE)
+   ===================================================== */
 
-import { onAuthStateChanged } from
-  "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const form = document.getElementById("createForm");
+const resultBox = document.getElementById("result");
 
-let currentUser = null;
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "/login/";
-  } else {
-    currentUser = user;
+  const title = document.getElementById("title").value.trim();
+  const targetUrl = document.getElementById("targetUrl").value.trim();
+  const duration = document.getElementById("duration").value;
+
+  if (!title || !targetUrl) {
+    alert("Semua field wajib diisi");
+    return;
   }
+
+  /* ============================= */
+  /* GENERATE SECURE TOKEN */
+  /* ============================= */
+  const token = generateToken(title, targetUrl);
+
+  /* ============================= */
+  /* BUILD FINAL LINK */
+  /* ============================= */
+  const finalLink =
+    `${location.origin}/download/go/?v=${token}`;
+
+  /* ============================= */
+  /* SHOW RESULT */
+  /* ============================= */
+  resultBox.style.display = "block";
+  resultBox.innerHTML = `
+    <strong>Link berhasil dibuat</strong><br><br>
+    <input type="text" value="${finalLink}" readonly onclick="this.select()" />
+    <p style="font-size:12px;color:#666;margin-top:6px">
+      Masa aktif: ${duration} hari
+    </p>
+  `;
 });
 
-window.generateLink = async function () {
-  const title = document.getElementById("name").value.trim();
-  const target = document.getElementById("to").value.trim();
-  const mode = document.getElementById("mode").value;
+/* =====================================================
+   TOKEN ENGINE (ANTI NEBAK)
+   ===================================================== */
 
-  if (!title || !target) {
-    alert("Judul dan link wajib diisi");
-    return;
+/**
+ * Token = random + hash mini dari isi link
+ * contoh: v8X9kA-qF3dP
+ */
+function generateToken(title, url) {
+  const rand = randomString(6);
+  const sig = simpleHash(title + url).slice(0, 6);
+  return `${rand}-${sig}`;
+}
+
+/**
+ * Random huruf + angka
+ */
+function randomString(length) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let out = "";
+  for (let i = 0; i < length; i++) {
+    out += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return out;
+}
 
-  try {
-    new URL(target);
-  } catch {
-    alert("URL tidak valid");
-    return;
+/**
+ * Hash ringan (bukan crypto berat)
+ * Tujuan: token gak cuma random
+ */
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
   }
-
-  try {
-    const docRef = await addDoc(collection(db, "links"), {
-      title,
-      targetUrl: target,
-      mode,
-      ownerUid: currentUser.uid,
-      createdAt: serverTimestamp(),
-      expireAt: null,
-      clicks: 0,
-      active: true
-    });
-
-    const finalLink =
-      `${location.origin}/go/?id=${docRef.id}`;
-
-    document.getElementById("mainResult").innerHTML = `
-      <strong>Link berhasil dibuat</strong><br><br>
-      <input value="${finalLink}" onclick="this.select()" style="width:100%;padding:10px">
-      <small>Klik untuk copy</small>
-    `;
-  } catch (err) {
-    alert("Gagal membuat link");
-    console.error(err);
-  }
-};
+  return Math.abs(hash).toString(36);
+}
