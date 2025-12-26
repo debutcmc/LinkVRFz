@@ -1,5 +1,5 @@
 /* =====================================================
-   LINKVRFz - GO.JS (TOKEN LOCKER)
+   LINKVRFz - GO.JS (TOKEN LOCKER FINAL)
    ===================================================== */
 
 /* ============================= */
@@ -28,16 +28,20 @@ if (!token) {
 /* ============================= */
 try {
   const raw = localStorage.getItem("linkvrfz:" + token);
-  if (!raw) fatalError("Link tidak valid");
+  if (!raw) fatalError("Link tidak valid atau sudah dihapus");
 
   linkData = JSON.parse(raw);
+
+  if (!linkData.targetUrl || !linkData.expiredAt) {
+    fatalError("Data link rusak");
+  }
 
   if (Date.now() > linkData.expiredAt) {
     fatalError("Link sudah expired");
   }
 
   targetUrl = linkData.targetUrl;
-} catch {
+} catch (e) {
   fatalError("Gagal memuat link");
 }
 
@@ -93,11 +97,13 @@ function unlockTask(task, index) {
 }
 
 function startTask(index) {
-  if (index !== currentTask || tasksDone[index]) return;
+  if (index !== currentTask) return;
+  if (tasksDone[index]) return;
 
   const task = document.querySelectorAll(".task")[index];
   if (!task) return;
 
+  /* 🔥 OPEN SMARTLINK */
   window.open(
     "https://www.effectivegatecpm.com/h06jd728?key=243d13fa860cbf346b1d7cc99aa435f9",
     "_blank"
@@ -128,7 +134,9 @@ function completeTask(index) {
   task.innerText = "✔ Task selesai";
 
   currentTask++;
-  if (tasks[currentTask]) unlockTask(tasks[currentTask], currentTask);
+  if (tasks[currentTask]) {
+    unlockTask(tasks[currentTask], currentTask);
+  }
 
   updateProgress();
 }
@@ -142,6 +150,8 @@ function updateProgress() {
 
   if (done === totalTask) {
     const btn = document.getElementById("taskBtn");
+    if (!btn) return;
+
     btn.disabled = false;
     btn.innerText = "LANJUTKAN";
     btn.onclick = () => {
@@ -161,12 +171,20 @@ window.addEventListener("scroll", () => {
 
   if (!article || article.style.display === "none") return;
 
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+  if (
+    window.innerHeight + window.scrollY >=
+    document.body.offsetHeight - 50
+  ) {
     btn.style.display = "block";
   }
 });
 
 function continueDownload() {
+  if (!targetUrl || targetUrl === "#") {
+    alert("Link download tidak valid");
+    return;
+  }
+
   window.location.href = targetUrl;
 }
 
@@ -184,6 +202,16 @@ function hide(id) {
 }
 
 function fatalError(msg) {
-  document.body.innerHTML = `<h2 style="padding:40px">${msg}</h2>`;
+  document.body.innerHTML = `
+    <div style="
+      padding:40px;
+      font-family:Arial;
+      background:#0f0f0f;
+      color:#fff;
+      text-align:center
+    ">
+      <h2>${msg}</h2>
+    </div>
+  `;
   throw new Error(msg);
 }
