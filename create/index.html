@@ -65,15 +65,14 @@
       </div>
 
       <!-- EXTRA -->
-      <div class="field checkbox-group">
-        <label class="checkbox">
-          <input type="checkbox" id="antiDirect" checked>
-          Anti Direct Access
-        </label>
-        <label class="checkbox">
-          <input type="checkbox" id="hideUrl">
-          Sembunyikan Target URL
-        </label>
+      <div class="field toggle">
+        <input type="checkbox" id="antiDirect" checked>
+        <label for="antiDirect">Anti Direct Access</label>
+      </div>
+
+      <div class="field toggle">
+        <input type="checkbox" id="hideUrl">
+        <label for="hideUrl">Sembunyikan Target URL</label>
       </div>
 
       <!-- DURATION -->
@@ -109,9 +108,7 @@
 <div id="generateOverlay" class="overlay hidden">
   <div class="loader-box" id="loaderState">
 
-    <!-- LOADING ICON -->
     <lord-icon
-      id="loadingIcon"
       src="https://cdn.lordicon.com/kozvmqsd.json"
       trigger="loop"
       delay="800"
@@ -120,6 +117,29 @@
     </lord-icon>
 
     <p id="loaderText">Memvalidasi link...</p>
+  </div>
+</div>
+
+<!-- ================= AUTH BLOCK (NOT LOGIN) ================= -->
+<div id="authBlock" class="auth-block hidden">
+  <div class="auth-box">
+
+    <lord-icon
+      src="https://cdn.lordicon.com/pilfbsjh.json"
+      trigger="in"
+      delay="800"
+      stroke="bold"
+      colors="primary:#121331,secondary:#ffc738,tertiary:#e83a30"
+      style="width:150px;height:150px">
+    </lord-icon>
+
+    <h2>Akses Ditolak</h2>
+    <p>Kamu harus login untuk membuat link.</p>
+
+    <a href="/login/" class="btn primary full">
+      Login Sekarang
+    </a>
+
   </div>
 </div>
 
