@@ -1,1 +1,69 @@
+/* ============================= */
+/* BASE RESET + THEME */
+/* ============================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #0f0f0f;
+  color: #fff;
+}
+
+/* ============================= */
+/* NAVBAR (GLOBAL) */
+/* ============================= */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: #111;
+  border-bottom: 1px solid #222;
+}
+
+.nav nav a {
+  margin-left: 16px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.nav nav a:hover {
+  color: #00ffae;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.badge {
+  font-size: 12px;
+  color: #00ffae;
+}
+
+/* ============================= */
+/* BUTTON GLOBAL */
+/* ============================= */
+.btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.btn.primary {
+  background: #00ffae;
+  color: #000;
+}
+
+.btn.secondary {
+  border: 1px solid #00ffae;
+  color: #00ffae;
+}
 
