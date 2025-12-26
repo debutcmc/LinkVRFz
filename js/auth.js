@@ -1,65 +1,65 @@
 // /js/auth.js
 import { auth } from "./firebase.js";
-
 import {
   onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ========================= */
-/* LOGIN */
-/* ========================= */
-export function login(email, password) {
-  if (!email || !password) {
-    throw new Error("Email dan password wajib diisi");
-  }
+/* =============================
+   GLOBAL AUTH STATE
+   ============================= */
 
-  return signInWithEmailAndPassword(auth, email, password);
-}
+let currentUser = null;
+let authReady = false;
+const listeners = [];
 
-/* ========================= */
-/* REGISTER */
-/* ========================= */
-export function register(email, password) {
-  if (!email || !password) {
-    throw new Error("Email dan password wajib diisi");
-  }
+/* =============================
+   AUTH OBSERVER
+   ============================= */
 
-  if (password.length < 6) {
-    throw new Error("Password minimal 6 karakter");
-  }
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  authReady = true;
 
-  return createUserWithEmailAndPassword(auth, email, password);
-}
+  // notify listeners
+  listeners.forEach(cb => cb(user));
+});
 
-/* ========================= */
-/* LOGOUT */
-/* ========================= */
-export function logout() {
-  return signOut(auth);
-}
+/* =============================
+   PUBLIC API
+   ============================= */
 
-/* ========================= */
-/* AUTH GUARD */
-/* ========================= */
 /**
- * @param {Object} options
- * options.requireAuth = true  → halaman protected
- * options.redirectTo = "/login/"
+ * Tunggu auth siap (dipakai halaman lain)
  */
-export function initAuthGuard({
-  requireAuth = false,
-  redirectTo = "/login/"
-} = {}) {
-  onAuthStateChanged(auth, (user) => {
-    if (requireAuth && !user) {
-      window.location.href = redirectTo;
-    }
-
-    if (!requireAuth && user) {
-      window.location.href = "/dashboard/";
+export function waitAuthReady() {
+  return new Promise((resolve) => {
+    if (authReady) {
+      resolve(currentUser);
+    } else {
+      listeners.push(resolve);
     }
   });
+}
+
+/**
+ * Ambil user aktif (boleh null)
+ */
+export function getCurrentUser() {
+  return currentUser;
+}
+
+/**
+ * Check login (boolean)
+ */
+export function isLoggedIn() {
+  return !!currentUser;
+}
+
+/**
+ * Logout helper
+ */
+export async function logout() {
+  await signOut(auth);
+  location.href = "/login/";
 }
