@@ -1,62 +1,63 @@
 /* =====================================================
-   LINKVRFz - GO.JS (PRO LOCKER - FIXED)
+   LINKVRFz - GO.JS (TOKEN LOCKER)
    ===================================================== */
 
 /* ============================= */
 /* GLOBAL STATE */
 /* ============================= */
+let linkData = null;
 let targetUrl = "#";
+
 let totalTask = 3;
 let currentTask = 0;
 let tasksDone = [];
 let taskTimer = null;
 
 /* ============================= */
-/* GET PARAMS */
+/* GET TOKEN */
 /* ============================= */
 const params = new URLSearchParams(window.location.search);
-const to = params.get("to");
-const mode = params.get("mode") || "medium";
+const token = params.get("v");
 
-if (to) {
-  try {
-    targetUrl = decodeURIComponent(to);
-  } catch {
-    targetUrl = to;
+if (!token) {
+  fatalError("Token tidak ditemukan");
+}
+
+/* ============================= */
+/* RESOLVE TOKEN (LOCAL MODE) */
+/* ============================= */
+try {
+  const raw = localStorage.getItem("linkvrfz:" + token);
+  if (!raw) fatalError("Link tidak valid");
+
+  linkData = JSON.parse(raw);
+
+  if (Date.now() > linkData.expiredAt) {
+    fatalError("Link sudah expired");
   }
+
+  targetUrl = linkData.targetUrl;
+} catch {
+  fatalError("Gagal memuat link");
 }
 
 /* ============================= */
-/* MODE CONFIG */
+/* INIT */
 /* ============================= */
-switch (mode) {
-  case "easy":
-    totalTask = 1;
-    break;
-  case "hard":
-    totalTask = 5;
-    break;
-  default:
-    totalTask = 3;
-}
-
 tasksDone = new Array(totalTask).fill(false);
 
-/* ============================= */
-/* STEP 1 → VERIFY */
-/* ============================= */
 setTimeout(() => {
   hide("stepVerify");
   showFileCard();
-}, 2200);
+}, 2000);
 
 /* ============================= */
-/* STEP 2 → FILE CARD */
+/* FILE CARD */
 /* ============================= */
 function showFileCard() {
   const fileNameEl = document.getElementById("fileName");
   if (fileNameEl) {
-    fileNameEl.innerText = extractFileName(targetUrl);
+    fileNameEl.innerText = linkData.title || "Download File";
   }
 
   show("stepFile");
@@ -65,32 +66,21 @@ function showFileCard() {
     hide("stepFile");
     show("stepTask");
     initTasks();
-  }, 1800);
+  }, 1600);
 }
 
 /* ============================= */
-/* INIT TASKS */
+/* TASK SYSTEM */
 /* ============================= */
 function initTasks() {
   const tasks = document.querySelectorAll(".task");
 
   tasks.forEach((task, i) => {
-    if (i >= totalTask) {
-      task.style.display = "none";
-      return;
-    }
-
-    if (i === 0) {
-      unlockTask(task, i);
-    } else {
-      lockTask(task);
-    }
+    if (i === 0) unlockTask(task, i);
+    else lockTask(task);
   });
 }
 
-/* ============================= */
-/* LOCK / UNLOCK */
-/* ============================= */
 function lockTask(task) {
   task.classList.add("locked");
   task.style.pointerEvents = "none";
@@ -102,29 +92,24 @@ function unlockTask(task, index) {
   task.onclick = () => startTask(index);
 }
 
-/* ============================= */
-/* START TASK */
-/* ============================= */
 function startTask(index) {
-  if (index !== currentTask) return;
-  if (tasksDone[index]) return;
+  if (index !== currentTask || tasksDone[index]) return;
 
   const task = document.querySelectorAll(".task")[index];
   if (!task) return;
 
-  /* 🔥 BUKA SMARTLINK (BENAR) */
   window.open(
     "https://www.effectivegatecpm.com/h06jd728?key=243d13fa860cbf346b1d7cc99aa435f9",
     "_blank"
   );
 
-  let seconds = 8 + index * 4; // makin bawah makin lama
-  task.innerText = `⏳ Memverifikasi (${seconds}s)`;
+  let seconds = 8 + index * 4;
+  task.innerText = `⏳ Verifikasi (${seconds}s)`;
   task.style.pointerEvents = "none";
 
   taskTimer = setInterval(() => {
     seconds--;
-    task.innerText = `⏳ Memverifikasi (${seconds}s)`;
+    task.innerText = `⏳ Verifikasi (${seconds}s)`;
 
     if (seconds <= 0) {
       clearInterval(taskTimer);
@@ -133,9 +118,6 @@ function startTask(index) {
   }, 1000);
 }
 
-/* ============================= */
-/* COMPLETE TASK */
-/* ============================= */
 function completeTask(index) {
   tasksDone[index] = true;
 
@@ -146,17 +128,11 @@ function completeTask(index) {
   task.innerText = "✔ Task selesai";
 
   currentTask++;
-
-  if (tasks[currentTask]) {
-    unlockTask(tasks[currentTask], currentTask);
-  }
+  if (tasks[currentTask]) unlockTask(tasks[currentTask], currentTask);
 
   updateProgress();
 }
 
-/* ============================= */
-/* UPDATE PROGRESS */
-/* ============================= */
 function updateProgress() {
   const done = tasksDone.filter(Boolean).length;
   const percent = Math.round((done / totalTask) * 100);
@@ -166,20 +142,18 @@ function updateProgress() {
 
   if (done === totalTask) {
     const btn = document.getElementById("taskBtn");
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = "LANJUTKAN VERIFIKASI";
-      btn.onclick = () => {
-        hide("stepTask");
-        show("stepArticle");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      };
-    }
+    btn.disabled = false;
+    btn.innerText = "LANJUTKAN";
+    btn.onclick = () => {
+      hide("stepTask");
+      show("stepArticle");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
   }
 }
 
 /* ============================= */
-/* STEP 4 → SCROLL DETECT */
+/* SCROLL → DOWNLOAD */
 /* ============================= */
 window.addEventListener("scroll", () => {
   const article = document.getElementById("stepArticle");
@@ -187,23 +161,12 @@ window.addEventListener("scroll", () => {
 
   if (!article || article.style.display === "none") return;
 
-  if (
-    window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 50
-  ) {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
     btn.style.display = "block";
   }
 });
 
-/* ============================= */
-/* FINAL DOWNLOAD */
-/* ============================= */
 function continueDownload() {
-  if (!targetUrl || targetUrl === "#") {
-    alert("Link download tidak valid");
-    return;
-  }
-
   window.location.href = targetUrl;
 }
 
@@ -220,17 +183,7 @@ function hide(id) {
   if (el) el.style.display = "none";
 }
 
-function extractFileName(url) {
-  try {
-    const u = new URL(url);
-
-    if (u.hostname.includes("drive.google.com")) {
-      return "Google Drive File";
-    }
-
-    let name = u.pathname.split("/").pop();
-    return name ? decodeURIComponent(name) : "Download File";
-  } catch {
-    return "Download File";
-  }
+function fatalError(msg) {
+  document.body.innerHTML = `<h2 style="padding:40px">${msg}</h2>`;
+  throw new Error(msg);
 }
