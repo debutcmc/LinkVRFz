@@ -25,11 +25,19 @@ body {
   border-bottom: 1px solid #222;
 }
 
+.nav nav {
+  display: flex;
+  align-items: center;
+}
+
 .nav nav a {
   margin-left: 16px;
   text-decoration: none;
   font-size: 14px;
   color: #aaa;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .nav nav a:hover {
@@ -47,6 +55,13 @@ body {
 }
 
 /* ============================= */
+/* NAV ICON (TOKO) */
+/* ============================= */
+.nav-icon lord-icon {
+  display: inline-flex;
+}
+
+/* ============================= */
 /* BUTTON GLOBAL */
 /* ============================= */
 .btn {
@@ -55,6 +70,7 @@ body {
   text-decoration: none;
   font-weight: bold;
   font-size: 14px;
+  transition: 0.2s ease;
 }
 
 .btn.primary {
@@ -62,8 +78,43 @@ body {
   color: #000;
 }
 
+.btn.primary:hover {
+  opacity: 0.85;
+}
+
 .btn.secondary {
   border: 1px solid #00ffae;
   color: #00ffae;
 }
 
+.btn.secondary:hover {
+  background: rgba(0, 255, 174, 0.1);
+}
+
+/* ============================= */
+/* NAV LOGIN BUTTON */
+/* ============================= */
+.nav .btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+/* ============================= */
+/* MOBILE NAV FIX */
+/* ============================= */
+@media (max-width: 600px) {
+  .nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav nav a {
+    margin-left: 0;
+    margin-right: 12px;
+  }
+}
