@@ -10,11 +10,13 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
   const targetUrl = document.getElementById("targetUrl").value.trim();
+  const mode = document.getElementById("mode").value;
   const duration = Number(document.getElementById("duration").value);
 
   if (!title || !targetUrl) {
-    alert("Semua field wajib diisi");
+    alert("Judul dan Target URL wajib diisi");
     return;
   }
 
@@ -29,11 +31,13 @@ form.addEventListener("submit", (e) => {
   const expiredAt = Date.now() + duration * 24 * 60 * 60 * 1000;
 
   /* ============================= */
-  /* SAVE TO LOCAL STORAGE */
+  /* SAVE PAYLOAD */
   /* ============================= */
   const payload = {
     title,
+    description,
     targetUrl,
+    mode,
     expiredAt,
     createdAt: Date.now()
   };
@@ -56,8 +60,8 @@ form.addEventListener("submit", (e) => {
   resultBox.innerHTML = `
     <strong>Link berhasil dibuat</strong><br><br>
     <input type="text" value="${finalLink}" readonly onclick="this.select()" />
-    <p style="font-size:12px;color:#666;margin-top:6px">
-      Masa aktif: ${duration} hari
+    <p style="font-size:12px;color:#aaa;margin-top:6px">
+      Mode: <b>${mode}</b> • Aktif ${duration} hari
     </p>
   `;
 });
@@ -66,10 +70,6 @@ form.addEventListener("submit", (e) => {
    TOKEN ENGINE (ANTI NEBAK)
    ===================================================== */
 
-/**
- * Token = random + hash mini dari isi link
- * contoh: A8kQ9Z-xf21mP
- */
 function generateToken(title, url) {
   const rand = randomString(6);
   const sig = simpleHash(title + url).slice(0, 6);
