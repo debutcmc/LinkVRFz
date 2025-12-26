@@ -1,1 +1,42 @@
+.container {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+}
+
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #111;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.result {
+  margin-top: 20px;
+  background: #f4f4f4;
+  padding: 12px;
+}
+
+.result input {
+  width: 100%;
+}
 
