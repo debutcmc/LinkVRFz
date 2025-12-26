@@ -1,6 +1,6 @@
 /* =====================================================
    CREATE LINK — LinkVRFz
-   LOCAL TOKEN ENGINE (STABLE)
+   LOCAL TOKEN ENGINE (FULL VERSION)
    ===================================================== */
 
 const form = document.getElementById("createForm");
@@ -9,60 +9,96 @@ const resultBox = document.getElementById("result");
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
+  /* =============================
+     GET FORM VALUES
+     ============================= */
   const title = document.getElementById("title").value.trim();
-  const description = document.getElementById("description").value.trim();
+  const description = document.getElementById("description")?.value.trim() || "";
+  const fileName = document.getElementById("fileName")?.value.trim() || "";
   const targetUrl = document.getElementById("targetUrl").value.trim();
   const mode = document.getElementById("mode").value;
   const duration = Number(document.getElementById("duration").value);
+
+  const antiDirect =
+    document.getElementById("antiDirect")?.checked ?? true;
+  const hideUrl =
+    document.getElementById("hideUrl")?.checked ?? false;
+  const note =
+    document.getElementById("note")?.value.trim() || "";
 
   if (!title || !targetUrl) {
     alert("Judul dan Target URL wajib diisi");
     return;
   }
 
-  /* ============================= */
-  /* GENERATE TOKEN */
-  /* ============================= */
+  /* =============================
+     GENERATE TOKEN
+     ============================= */
   const token = generateToken(title, targetUrl);
 
-  /* ============================= */
-  /* EXPIRE TIME */
-  /* ============================= */
-  const expiredAt = Date.now() + duration * 24 * 60 * 60 * 1000;
+  /* =============================
+     EXPIRE TIME
+     ============================= */
+  const expiredAt =
+    Date.now() + duration * 24 * 60 * 60 * 1000;
 
-  /* ============================= */
-  /* SAVE PAYLOAD */
-  /* ============================= */
+  /* =============================
+     BUILD PAYLOAD
+     ============================= */
   const payload = {
     title,
     description,
+    fileName,
     targetUrl,
     mode,
+    duration,
+    antiDirect,
+    hideUrl,
+    note,
+
+    createdAt: Date.now(),
     expiredAt,
-    createdAt: Date.now()
+
+    stats: {
+      views: 0,
+      verified: 0,
+      downloads: 0
+    }
   };
 
+  /* =============================
+     SAVE TO LOCAL STORAGE
+     ============================= */
   localStorage.setItem(
     "linkvrfz:" + token,
     JSON.stringify(payload)
   );
 
-  /* ============================= */
-  /* FINAL LINK */
-  /* ============================= */
+  /* =============================
+     FINAL LINK
+     ============================= */
   const finalLink =
     `${location.origin}/download/go/?v=${token}`;
 
-  /* ============================= */
-  /* SHOW RESULT */
-  /* ============================= */
+  /* =============================
+     SHOW RESULT
+     ============================= */
   resultBox.style.display = "block";
   resultBox.innerHTML = `
     <strong>Link berhasil dibuat</strong><br><br>
-    <input type="text" value="${finalLink}" readonly onclick="this.select()" />
-    <p style="font-size:12px;color:#aaa;margin-top:6px">
-      Mode: <b>${mode}</b> • Aktif ${duration} hari
-    </p>
+
+    <input type="text"
+      value="${finalLink}"
+      readonly
+      onclick="this.select()"
+    />
+
+    <div style="margin-top:10px;font-size:12px;color:#aaa">
+      <div>Mode: <b>${mode.toUpperCase()}</b></div>
+      <div>Masa aktif: ${duration} hari</div>
+      <div>Anti Direct: ${antiDirect ? "ON" : "OFF"}</div>
+      <div>Hide URL: ${hideUrl ? "ON" : "OFF"}</div>
+    </div>
   `;
 });
 
