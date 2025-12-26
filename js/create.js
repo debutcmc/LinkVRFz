@@ -1,124 +1,73 @@
-function generateLink() {
-  const toInput = document.getElementById("to");
-  const nameInput = document.getElementById("name");
-  const modeSelect = document.getElementById("mode");
-  const btn = document.querySelector(".big-btn");
+import { auth } from "./firebase.js";
+import { initAuthGuard, logout } from "./auth.js";
+import { createLink } from "./db.js";
+import { onAuthStateChanged } from
+  "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  const to = toInput.value.trim();
-  const name = nameInput.value.trim() || "Untitled";
-  const mode = modeSelect.value;
+initAuthGuard(false);
 
-  if (!isValidUrl(to)) {
-    showMainResult("❌ Format link tidak valid");
-    return;
-  }
+/* ========================= */
+/* LOGOUT */
+/* ========================= */
+document.getElementById("logoutBtn").onclick = logout;
 
-  btn.disabled = true;
-
-  const base = window.location.origin;
-  const finalLink =
-    `${base}/download/go?to=${encodeURIComponent(to)}&mode=${mode}`;
-
-  const fileType = detectFileType(to);
-
-  showMainResult(`
-    <strong>✅ Link berhasil dibuat</strong><br><br>
-    <input 
-      value="${finalLink}" 
-      onclick="this.select()" 
-      readonly
-      style="width:100%;padding:10px;border-radius:8px;border:1px solid #222;background:#0f0f0f;color:#00ffae"
-    >
-    <small style="color:#aaa">Klik untuk select, lalu copy</small>
-  `);
-
-  addHistoryCard(name, fileType, mode, finalLink);
-
-  btn.disabled = false;
+/* ========================= */
+/* HELPERS */
+/* ========================= */
+function addDays(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d;
 }
 
-/* ============================= */
-/* UTIL */
-/* ============================= */
-
-function isValidUrl(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+async function hashString(str) {
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(buf)]
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-function detectFileType(url) {
-  const lower = url.toLowerCase();
-  if (lower.includes(".apk")) return "APK";
-  if (lower.includes(".zip")) return "ZIP";
-  if (lower.includes(".mcaddon")) return "MC ADDON";
-  if (lower.includes(".mcpack")) return "MC PACK";
-  if (lower.includes("drive.google")) return "GOOGLE DRIVE";
-  if (lower.includes("mediafire")) return "MEDIAFIRE";
-  return "FILE";
-}
+/* ========================= */
+/* CREATE LINK */
+/* ========================= */
+onAuthStateChanged(auth, (user) => {
+  if (!user) return;
 
-/* ============================= */
-/* UI HANDLER */
-/* ============================= */
+  const form = document.getElementById("createForm");
+  const result = document.getElementById("result");
 
-function showMainResult(html) {
-  document.getElementById("mainResult").innerHTML = html;
-}
+  form.onsubmit = async (e) => {
+    e.preventDefault();
 
-function addHistoryCard(name, type, mode, link) {
-  const card = document.createElement("div");
-  card.className = "link-card";
+    const title = document.getElementById("title").value.trim();
+    const targetUrl = document.getElementById("targetUrl").value.trim();
+    const duration = parseInt(document.getElementById("duration").value);
 
-  card.innerHTML = `
-    <div class="row"><strong>Nama:</strong> ${escapeHtml(name)}</div>
-    <div class="row"><strong>Type:</strong> ${type}</div>
-    <div class="row"><strong>Mode:</strong> ${mode}</div>
-    <div class="link">${link}</div>
-    <div class="actions">
-      <button onclick="copyText('${link}')">COPY</button>
-    </div>
-  `;
+    if (!title || !targetUrl) {
+      alert("Semua field wajib diisi");
+      return;
+    }
 
-  document.getElementById("historyList").prepend(card);
-}
+    const fileHash = await hashString(targetUrl + user.uid);
+    const expiresAt = addDays(duration);
 
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast("📋 Link copied!");
-  });
-}
+    const docRef = await createLink(user.uid, {
+      title,
+      targetUrl,
+      fileHash,
+      expiresAt
+    });
 
-/* ============================= */
-/* SAFETY + UX */
-/* ============================= */
+    const finalLink =
+      `${location.origin}/go/?id=${docRef.id}`;
 
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.innerText = text;
-  return div.innerHTML;
-}
+    result.style.display = "block";
+    result.innerHTML = `
+      <p>✅ Link berhasil dibuat</p>
+      <input value="${finalLink}" readonly />
+    `;
 
-function showToast(msg) {
-  const toast = document.createElement("div");
-  toast.innerText = msg;
-  toast.style.position = "fixed";
-  toast.style.bottom = "20px";
-  toast.style.right = "20px";
-  toast.style.padding = "12px 16px";
-  toast.style.background = "#00ffae";
-  toast.style.color = "#000";
-  toast.style.borderRadius = "8px";
-  toast.style.fontSize = "13px";
-  toast.style.fontWeight = "bold";
-  toast.style.zIndex = "999";
-
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 1800);
-}
+    form.reset();
+  };
+});
