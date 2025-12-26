@@ -1,6 +1,6 @@
 /* =====================================================
    CREATE LINK — LinkVRFz
-   Step 1 : Local Token Generator (TEST MODE)
+   LOCAL TOKEN ENGINE (STABLE)
    ===================================================== */
 
 const form = document.getElementById("createForm");
@@ -11,7 +11,7 @@ form.addEventListener("submit", (e) => {
 
   const title = document.getElementById("title").value.trim();
   const targetUrl = document.getElementById("targetUrl").value.trim();
-  const duration = document.getElementById("duration").value;
+  const duration = Number(document.getElementById("duration").value);
 
   if (!title || !targetUrl) {
     alert("Semua field wajib diisi");
@@ -19,12 +19,32 @@ form.addEventListener("submit", (e) => {
   }
 
   /* ============================= */
-  /* GENERATE SECURE TOKEN */
+  /* GENERATE TOKEN */
   /* ============================= */
   const token = generateToken(title, targetUrl);
 
   /* ============================= */
-  /* BUILD FINAL LINK */
+  /* EXPIRE TIME */
+  /* ============================= */
+  const expiredAt = Date.now() + duration * 24 * 60 * 60 * 1000;
+
+  /* ============================= */
+  /* SAVE TO LOCAL STORAGE */
+  /* ============================= */
+  const payload = {
+    title,
+    targetUrl,
+    expiredAt,
+    createdAt: Date.now()
+  };
+
+  localStorage.setItem(
+    "linkvrfz:" + token,
+    JSON.stringify(payload)
+  );
+
+  /* ============================= */
+  /* FINAL LINK */
   /* ============================= */
   const finalLink =
     `${location.origin}/download/go/?v=${token}`;
@@ -48,7 +68,7 @@ form.addEventListener("submit", (e) => {
 
 /**
  * Token = random + hash mini dari isi link
- * contoh: v8X9kA-qF3dP
+ * contoh: A8kQ9Z-xf21mP
  */
 function generateToken(title, url) {
   const rand = randomString(6);
@@ -56,23 +76,16 @@ function generateToken(title, url) {
   return `${rand}-${sig}`;
 }
 
-/**
- * Random huruf + angka
- */
 function randomString(length) {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let out = "";
   for (let i = 0; i < length; i++) {
-    out += chars.charAt(Math.floor(Math.random() * chars.length));
+    out += chars[Math.floor(Math.random() * chars.length)];
   }
   return out;
 }
 
-/**
- * Hash ringan (bukan crypto berat)
- * Tujuan: token gak cuma random
- */
 function simpleHash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
