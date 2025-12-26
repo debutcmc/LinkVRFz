@@ -2,67 +2,43 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create — LinkVRFz</title>
+  <title>Create Link — LinkVRFz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- GLOBAL STYLE -->
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/create.css" />
 
-  <!-- PAGE SCRIPT -->
-  <script src="/js/create.js" defer></script>
+  <script type="module" src="/js/create.js" defer></script>
 </head>
 <body>
 
-  <!-- DASHBOARD NAV -->
-  <header class="dash-nav">
-    <div class="logo">LinkVRFz</div>
-    <span class="badge">Dashboard</span>
-  </header>
+<header class="nav">
+  <div class="logo">LinkVRFz</div>
+  <button id="logoutBtn">Logout</button>
+</header>
 
-  <!-- CREATOR WORKSPACE -->
-  <main class="workspace">
+<main class="container">
+  <h1>Buat Link Baru</h1>
 
-    <!-- INPUT LINK -->
-    <input
-      id="to"
-      type="url"
-      class="big-input"
-      placeholder="Tempel link download (Drive / Mediafire / .zip / .apk)"
-    >
+  <form id="createForm">
+    <label>Judul Link</label>
+    <input type="text" id="title" required />
 
-    <!-- INPUT NAME -->
-    <input
-      id="name"
-      type="text"
-      class="big-input"
-      placeholder="Nama link (contoh: Addon Keren MC)"
-    >
+    <label>Target URL</label>
+    <input type="url" id="targetUrl" required />
 
-    <!-- MODE SELECT -->
-    <select id="mode" class="big-select">
-      <option value="easy">Easy</option>
-      <option value="medium" selected>Medium</option>
-      <option value="hard">Hard</option>
-    >
-
+    <label>Masa Aktif</label>
+    <select id="duration">
+      <option value="7">7 Hari</option>
+      <option value="30">30 Hari</option>
+      <option value="365">1 Tahun</option>
     </select>
 
-    <!-- GENERATE BUTTON -->
-    <button class="big-btn" onclick="generateLink()">
-      GENERATE
-    </button>
+    <button type="submit">Generate Link</button>
+  </form>
 
-    <!-- RESULT AREA -->
-    <div id="mainResult" class="result-area">
-      Hasil link akan muncul di sini
-    </div>
-
-    <!-- GENERATED LINK LIST -->
-    <div class="list-area" id="historyList">
-      <!-- link-card di-inject oleh JS -->
-    </div>
-
-  </main>
+  <div id="result" class="result" style="display:none"></div>
+</main>
 
 </body>
 </html>
