@@ -49,16 +49,29 @@
   border: 1px solid #222;
   color: #fff;
   text-decoration: none;
+  font-size: 13px;
+}
+
+.profile-btn:hover {
+  background: #1b1b1b;
 }
 
 .badge.free {
-  font-size: 12px;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #0f2d26;
   color: #00ffae;
+  line-height: 1;
 }
 
 .badge.premium {
-  font-size: 12px;
-  color: #ffc738;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffc738, #ff9f00);
+  color: #000;
+  line-height: 1;
 }
 
 /* ============================= */
