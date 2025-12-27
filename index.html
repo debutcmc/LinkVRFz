@@ -9,20 +9,22 @@
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/landing.css">
 
-  <!-- LORDICON (LOAD SEKALI SAJA) -->
+  <!-- LORDICON (LOAD SEKALI) -->
   <script src="https://cdn.lordicon.com/lordicon.js"></script>
 </head>
 <body>
 
   <!-- NAVBAR -->
-  <header class="nav">
-    <div class="logo">LinkVRFz <span class="badge">BETA</span></div>
+  <header class="nav" id="navbar">
+    <div class="logo">
+      LinkVRFz <span class="badge">BETA</span>
+    </div>
 
     <nav class="nav-right">
-      <a href="/create/">Create Link</a>
-      <a href="/go/">Download</a>
+      <a href="/create/" id="navCreate">Create Link</a>
+      <a href="/go/" id="navDownload">Download</a>
 
-      <!-- TOKO + ICON -->
+      <!-- TOKO -->
       <a href="/store/" class="nav-icon">
         <lord-icon
           src="https://cdn.lordicon.com/pmawqxvu.json"
@@ -34,8 +36,10 @@
         <span>Toko</span>
       </a>
 
-      <!-- LOGIN BUTTON -->
-      <a href="/login/" class="btn secondary nav-login">Login</a>
+      <!-- LOGIN / DASHBOARD (DIKONTROL JS) -->
+      <a href="/login/" class="btn secondary nav-login" id="navAuth">
+        Login
+      </a>
     </nav>
   </header>
 
@@ -43,13 +47,17 @@
   <section class="hero">
     <h1>Download dengan <span>Verifikasi</span></h1>
     <p>
-      Platform link verifikasi untuk creator.  
+      Platform link verifikasi untuk creator.<br>
       Aman, cepat, dan adil untuk semua.
     </p>
 
     <div class="hero-btn">
-      <a href="/create/" class="btn primary">Buat Link</a>
-      <a href="/go/?to=https://example.com" class="btn secondary">Coba Download</a>
+      <a href="/create/" class="btn primary" id="heroPrimary">
+        Buat Link
+      </a>
+      <a href="/go/?to=https://example.com" class="btn secondary">
+        Coba Download
+      </a>
     </div>
   </section>
 
@@ -101,6 +109,9 @@
   <footer class="footer">
     <p>© 2025 LinkVRFz — Built by Zelwit</p>
   </footer>
+
+  <!-- LANDING JS -->
+  <script type="module" src="/js/landing.js"></script>
 
 </body>
 </html>
