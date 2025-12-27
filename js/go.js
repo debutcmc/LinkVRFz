@@ -3,6 +3,7 @@
    ===================================================== */
 
 import { db } from "/js/firebase.js";
+
 import {
   doc,
   getDoc,
@@ -17,7 +18,7 @@ import {
 let linkData = null;
 let targetUrl = "#";
 
-let totalTask = 3;
+const totalTask = 3;
 let currentTask = 0;
 let tasksDone = [];
 
@@ -33,7 +34,7 @@ if (!linkId) {
 }
 
 /* =============================
-   LOAD LINK FROM FIRESTORE
+   INIT — LOAD LINK
    ============================= */
 
 (async function init() {
@@ -53,15 +54,19 @@ if (!linkId) {
 
     targetUrl = linkData.targetUrl;
 
-    /* 🔥 KUNCI TOKEN SEKALI SAJA */
-    if (!linkData.tokenUsed) {
+    /* =============================
+       🔒 TOKEN LOCK (HANYA SEKALI)
+       ============================= */
+
+    if (linkData.tokenUsed !== true) {
       await updateDoc(linkRef, {
         tokenUsed: true
       });
 
       const userRef = doc(db, "users", linkData.ownerId);
+
       await updateDoc(userRef, {
-        token: increment(-1)
+        tokenQuota: increment(-1)
       });
     }
 
@@ -90,8 +95,11 @@ function startUI() {
    ============================= */
 
 function showFileCard() {
-  document.getElementById("fileName").innerText =
-    linkData.title || "Download File";
+  const fileNameEl = document.getElementById("fileName");
+
+  if (fileNameEl) {
+    fileNameEl.innerText = linkData.title || "Download File";
+  }
 
   show("stepFile");
 
@@ -159,20 +167,18 @@ function completeTask(index) {
   task.innerText = "✔ Task selesai";
 
   currentTask++;
-  if (document.querySelectorAll(".task")[currentTask]) {
-    unlockTask(
-      document.querySelectorAll(".task")[currentTask],
-      currentTask
-    );
-  }
+  const next = document.querySelectorAll(".task")[currentTask];
+  if (next) unlockTask(next, currentTask);
 
   updateProgress();
 }
 
 function updateProgress() {
   const done = tasksDone.filter(Boolean).length;
-  document.getElementById("progressBar").style.width =
-    Math.round((done / totalTask) * 100) + "%";
+  const percent = Math.round((done / totalTask) * 100);
+
+  const bar = document.getElementById("progressBar");
+  if (bar) bar.style.width = percent + "%";
 
   if (done === totalTask) {
     const btn = document.getElementById("taskBtn");
