@@ -28,7 +28,7 @@ onAuthStateChanged(auth, async (user) => {
     const ref = doc(db, "users", user.uid);
     const snap = await getDoc(ref);
 
-    // ✅ USER DOC HANYA DIBUAT DI SINI (SINGLE SOURCE OF TRUTH)
+    // USER DOC HANYA DIBUAT DI SINI
     if (!snap.exists()) {
       await setDoc(ref, {
         email: user.email,
@@ -60,6 +60,26 @@ export function getCurrentUser() {
   return currentUser;
 }
 
+/* ================= AUTH GUARD ================= */
+/**
+ * @param {boolean} redirectIfLoggedIn
+ * true  = halaman login/register (jangan boleh masuk kalau sudah login)
+ * false = halaman protected (harus login)
+ */
+export async function initAuthGuard(redirectIfLoggedIn = false) {
+  const user = await waitAuthReady();
+
+  if (redirectIfLoggedIn && user) {
+    location.href = "/dashboard/";
+    return;
+  }
+
+  if (!redirectIfLoggedIn && !user) {
+    sessionStorage.setItem("linkvrfz:redirect", location.pathname);
+    location.href = "/login/";
+  }
+}
+
 /* ================= LOGIN ================= */
 
 export async function login(email, password) {
@@ -86,10 +106,8 @@ export async function register(email, password) {
     throw new Error("Password minimal 6 karakter");
   }
 
-  // ❌ TIDAK BOLEH setDoc DI SINI (ANTI DOUBLE CREATE)
   await createUserWithEmailAndPassword(auth, email, password);
 
-  // user doc akan dibuat oleh auth observer
   location.href = "/dashboard/";
 }
 
