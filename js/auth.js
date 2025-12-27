@@ -28,6 +28,7 @@ onAuthStateChanged(auth, async (user) => {
     const ref = doc(db, "users", user.uid);
     const snap = await getDoc(ref);
 
+    // ✅ USER DOC HANYA DIBUAT DI SINI
     if (!snap.exists()) {
       await setDoc(ref, {
         email: user.email,
@@ -59,7 +60,13 @@ export function getCurrentUser() {
   return currentUser;
 }
 
+/* ================= LOGIN ================= */
+
 export async function login(email, password) {
+  if (!email || !password) {
+    throw new Error("Email dan password wajib diisi");
+  }
+
   await signInWithEmailAndPassword(auth, email, password);
 
   const redirect = sessionStorage.getItem("linkvrfz:redirect");
@@ -67,24 +74,25 @@ export async function login(email, password) {
   location.href = redirect || "/dashboard/";
 }
 
+/* ================= REGISTER ================= */
+
 export async function register(email, password) {
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
-  const user = cred.user;
+  if (!email || !password) {
+    throw new Error("Email dan password wajib diisi");
+  }
 
-  await setDoc(doc(db, "users", user.uid), {
-    email: user.email,
-    role: "user",
-    premium: false,
+  if (password.length < 6) {
+    throw new Error("Password minimal 6 karakter");
+  }
 
-    coin: 300,
-    tokenQuota: 15,
-    totalLink: 0,
+  // ❌ TIDAK ADA FIRESTORE DI SINI
+  await createUserWithEmailAndPassword(auth, email, password);
 
-    createdAt: Date.now()
-  });
-
+  // redirect ditangani setelah auth ready
   location.href = "/dashboard/";
 }
+
+/* ================= LOGOUT ================= */
 
 export async function logout() {
   await signOut(auth);
