@@ -1,5 +1,5 @@
 /* =====================================================
-   CREATE LINK — LinkVRFz (SECURE)
+   CREATE LINK — LinkVRFz (SECURE FINAL)
    ===================================================== */
 
 import { auth, db } from "./firebase.js";
@@ -47,7 +47,7 @@ form.addEventListener("submit", async (e) => {
   const user = userSnap.data();
 
   if (user.tokenQuota <= 0) {
-    alert("Token habis. Beli token untuk lanjut.");
+    alert("Token habis. Silakan beli token.");
     return;
   }
 
@@ -65,6 +65,12 @@ form.addEventListener("submit", async (e) => {
     note: text("note")
   };
 
+  if (!data.title || !data.targetUrl || !data.duration) {
+    alert("Data link belum lengkap");
+    overlay.classList.add("hidden");
+    return;
+  }
+
   const expiredAt = Date.now() + data.duration * 86400000;
 
   const docRef = await addDoc(collection(db, "links"), {
@@ -73,9 +79,14 @@ form.addEventListener("submit", async (e) => {
     status: "active",
     createdAt: Date.now(),
     expiredAt,
-    stats: { views: 0, verified: 0, downloads: 0 }
+    stats: {
+      views: 0,
+      verified: 0,
+      downloads: 0
+    }
   });
 
+  // 🔥 POTONG TOKEN & TAMBAH COUNTER
   await updateDoc(userRef, {
     tokenQuota: increment(-1),
     totalLink: increment(1)
@@ -89,29 +100,35 @@ form.addEventListener("submit", async (e) => {
   }, 1200);
 });
 
-/* ================= UI ================= */
+/* ================= UI HELPERS ================= */
 
-const val = id => document.getElementById(id).value.trim();
+const val = id => document.getElementById(id)?.value.trim() || "";
 const text = id => document.getElementById(id)?.value.trim() || "";
 const check = (id, d) => document.getElementById(id)?.checked ?? d;
 
 function showLoader() {
   overlay.classList.remove("hidden");
   loaderBox.innerHTML = `
-    <lord-icon src="https://cdn.lordicon.com/kozvmqsd.json"
-      trigger="loop" delay="800"
+    <lord-icon
+      src="https://cdn.lordicon.com/kozvmqsd.json"
+      trigger="loop"
+      delay="800"
       colors="primary:#4bb3fd,secondary:#4bb3fd"
-      style="width:150px;height:150px"></lord-icon>
+      style="width:150px;height:150px">
+    </lord-icon>
     <p>Menyusun & mengamankan link...</p>
   `;
 }
 
 function successIcon() {
   return `
-    <lord-icon src="https://cdn.lordicon.com/xlayapaf.json"
-      trigger="in" state="in-reveal"
+    <lord-icon
+      src="https://cdn.lordicon.com/xlayapaf.json"
+      trigger="in"
+      state="in-reveal"
       colors="primary:#ffffff,secondary:#66ee78"
-      style="width:150px;height:150px"></lord-icon>
+      style="width:150px;height:150px">
+    </lord-icon>
     <p style="color:#66ee78">Link berhasil dibuat</p>
   `;
 }
@@ -119,5 +136,7 @@ function successIcon() {
 function showResult(id) {
   const link = `${location.origin}/download/go/?id=${id}`;
   resultBox.style.display = "block";
-  resultBox.innerHTML = `<input value="${link}" readonly onclick="this.select()">`;
+  resultBox.innerHTML = `
+    <input value="${link}" readonly onclick="this.select()">
+  `;
 }
