@@ -30,6 +30,38 @@
 }
 
 /* ============================= */
+/* NAV PROFILE */
+/* ============================= */
+.nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-profile.hidden {
+  display: none;
+}
+
+.profile-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #111;
+  border: 1px solid #222;
+  color: #fff;
+  text-decoration: none;
+}
+
+.badge.free {
+  font-size: 12px;
+  color: #00ffae;
+}
+
+.badge.premium {
+  font-size: 12px;
+  color: #ffc738;
+}
+
+/* ============================= */
 /* FEATURES */
 /* ============================= */
 .features {
