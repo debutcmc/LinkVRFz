@@ -1,1 +1,111 @@
+/* ============================= */
+/* STORE HERO */
+/* ============================= */
+.store-hero {
+  text-align: center;
+  padding: 60px 20px 30px;
+}
+
+.store-hero h1 {
+  font-size: 34px;
+}
+
+.store-hero p {
+  color: #aaa;
+  margin-top: 8px;
+}
+
+/* ============================= */
+/* BALANCE */
+/* ============================= */
+.balance-card {
+  max-width: 420px;
+  margin: 0 auto 40px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+.balance-card p {
+  margin: 6px 0;
+}
+
+.balance-card .small {
+  font-size: 13px;
+  color: #888;
+}
+
+/* ============================= */
+/* STORE GRID */
+/* ============================= */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto 80px;
+  padding: 0 20px;
+}
+
+.store-card {
+  background: #0f0f0f;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.store-card h3 {
+  margin-top: 12px;
+}
+
+.store-card .desc {
+  font-size: 14px;
+  color: #aaa;
+  margin: 8px 0;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 14px 0;
+}
+
+.buy-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #00ffae;
+  color: #000;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.buy-btn:hover {
+  opacity: 0.85;
+}
+
+/* ============================= */
+/* PREMIUM */
+/* ============================= */
+.store-card.premium {
+  border-color: #ffc738;
+  box-shadow: 0 0 20px rgba(255,199,56,0.15);
+}
+
+.premium-btn {
+  background: #ffc738;
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+@media (max-width: 600px) {
+  .store-hero h1 {
+    font-size: 26px;
+  }
+}
 
