@@ -2,6 +2,8 @@
 import { auth } from "./firebase.js";
 import {
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -21,7 +23,6 @@ onAuthStateChanged(auth, (user) => {
   currentUser = user;
   authReady = true;
 
-  // notify listeners
   listeners.forEach(cb => cb(user));
 });
 
@@ -29,37 +30,87 @@ onAuthStateChanged(auth, (user) => {
    PUBLIC API
    ============================= */
 
-/**
- * Tunggu auth siap (dipakai halaman lain)
- */
 export function waitAuthReady() {
   return new Promise((resolve) => {
-    if (authReady) {
-      resolve(currentUser);
-    } else {
-      listeners.push(resolve);
-    }
+    if (authReady) resolve(currentUser);
+    else listeners.push(resolve);
   });
 }
 
-/**
- * Ambil user aktif (boleh null)
- */
 export function getCurrentUser() {
   return currentUser;
 }
 
-/**
- * Check login (boolean)
- */
 export function isLoggedIn() {
   return !!currentUser;
 }
 
-/**
- * Logout helper
- */
+/* =============================
+   LOGIN
+   ============================= */
+
+export async function login(email, password) {
+  if (!email || !password) {
+    throw new Error("Email dan password wajib diisi");
+  }
+
+  await signInWithEmailAndPassword(auth, email, password);
+
+  // redirect setelah login
+  const redirect = sessionStorage.getItem("linkvrfz:redirect");
+  sessionStorage.removeItem("linkvrfz:redirect");
+
+  location.href = redirect || "/dashboard/";
+}
+
+/* =============================
+   REGISTER
+   ============================= */
+
+export async function register(email, password) {
+  if (!email || !password) {
+    throw new Error("Email dan password wajib diisi");
+  }
+
+  if (password.length < 6) {
+    throw new Error("Password minimal 6 karakter");
+  }
+
+  await createUserWithEmailAndPassword(auth, email, password);
+
+  location.href = "/dashboard/";
+}
+
+/* =============================
+   LOGOUT
+   ============================= */
+
 export async function logout() {
   await signOut(auth);
   location.href = "/login/";
+}
+
+/* =============================
+   AUTH GUARD
+   ============================= */
+
+/**
+ * @param {boolean} blockWhenLoggedIn
+ * true  -> user login TIDAK BOLEH masuk (login page)
+ * false -> user BELUM login TIDAK BOLEH masuk (create, dashboard)
+ */
+export function initAuthGuard(blockWhenLoggedIn = false) {
+  waitAuthReady().then(user => {
+    if (blockWhenLoggedIn && user) {
+      location.href = "/dashboard/";
+    }
+
+    if (!blockWhenLoggedIn && !user) {
+      sessionStorage.setItem(
+        "linkvrfz:redirect",
+        location.pathname
+      );
+      location.href = "/login/";
+    }
+  });
 }
