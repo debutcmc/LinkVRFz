@@ -1,11 +1,17 @@
 // /js/auth.js
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+import {
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
 /* =============================
    GLOBAL AUTH STATE
@@ -19,9 +25,24 @@ const listeners = [];
    AUTH OBSERVER
    ============================= */
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   authReady = true;
+
+  // pastikan user doc ada
+  if (user) {
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        email: user.email,
+        role: "user",
+        premium: false,
+        createdAt: Date.now()
+      });
+    }
+  }
 
   listeners.forEach(cb => cb(user));
 });
@@ -56,7 +77,6 @@ export async function login(email, password) {
 
   await signInWithEmailAndPassword(auth, email, password);
 
-  // redirect setelah login
   const redirect = sessionStorage.getItem("linkvrfz:redirect");
   sessionStorage.removeItem("linkvrfz:redirect");
 
@@ -76,7 +96,15 @@ export async function register(email, password) {
     throw new Error("Password minimal 6 karakter");
   }
 
-  await createUserWithEmailAndPassword(auth, email, password);
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+  const user = cred.user;
+
+  await setDoc(doc(db, "users", user.uid), {
+    email: user.email,
+    role: "user",
+    premium: false,
+    createdAt: Date.now()
+  });
 
   location.href = "/dashboard/";
 }
@@ -94,11 +122,6 @@ export async function logout() {
    AUTH GUARD
    ============================= */
 
-/**
- * @param {boolean} blockWhenLoggedIn
- * true  -> user login TIDAK BOLEH masuk (login page)
- * false -> user BELUM login TIDAK BOLEH masuk (create, dashboard)
- */
 export function initAuthGuard(blockWhenLoggedIn = false) {
   waitAuthReady().then(user => {
     if (blockWhenLoggedIn && user) {
