@@ -1,70 +1,59 @@
 /* =====================================================
-   LANDING PAGE LOGIC — LinkVRFz (UX FIXED)
+   LANDING PAGE LOGIC — LinkVRFz (FINAL)
    ===================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-  const heroPrimary = document.getElementById("heroPrimary");
-  const navLoginBtn = document.getElementById("navLoginBtn");
+import { auth, db } from "./firebase.js";
+import { waitAuthReady } from "./auth.js";
+import {
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const user = getCurrentUser();
+document.addEventListener("DOMContentLoaded", async () => {
+  const navLogin = document.getElementById("navLogin");
+  const navProfile = document.getElementById("navProfile");
+  const profileLabel = document.getElementById("profileLabel");
+  const heroPrimary = document.getElementById("heroPrimary");
+
+  const user = await waitAuthReady();
 
   /* =============================
-     NAVBAR LOGIN BUTTON
+     AUTH UI SWITCH
      ============================= */
+
   if (user) {
-    navLoginBtn.textContent = "Dashboard";
-    navLoginBtn.href = "/dashboard/";
+    // hide login
+    navLogin.style.display = "none";
+
+    // show profile
+    navProfile.classList.remove("hidden");
+
+    // load user data
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (snap.exists()) {
+      const data = snap.data();
+      profileLabel.textContent = data.premium ? "PREMIUM" : "FREE";
+      profileLabel.className = data.premium ? "badge premium" : "badge free";
+    }
   } else {
-    navLoginBtn.textContent = "Login";
-    navLoginBtn.href = "/login/";
+    navLogin.style.display = "inline-flex";
+    navProfile.classList.add("hidden");
+
+    // guard hero button
+    heroPrimary.addEventListener("click", (e) => {
+      e.preventDefault();
+      sessionStorage.setItem("linkvrfz:redirect", "/create/");
+      alert("Login dulu untuk membuat link ✨");
+      location.href = "/login/";
+    });
   }
 
-  /* =============================
-     HERO CTA CLICK GUARD
-     ============================= */
-  heroPrimary.addEventListener("click", (e) => {
-    if (!user) {
-      e.preventDefault();
-      redirectToLoginWithReason();
-    }
-  });
-
-  /* =============================
-     LORDICON FIX
-     ============================= */
   forceLordiconReload();
 });
 
-/* =====================================================
-   AUTH (TEMP)
-   ===================================================== */
-
-function getCurrentUser() {
-  try {
-    return JSON.parse(localStorage.getItem("linkvrfz:user"));
-  } catch {
-    return null;
-  }
-}
-
-/* =====================================================
-   LOGIN REDIRECT UX
-   ===================================================== */
-
-function redirectToLoginWithReason() {
-  sessionStorage.setItem(
-    "linkvrfz:redirect",
-    location.pathname
-  );
-
-  alert("Login dulu untuk membuat link ✨");
-  location.href = "/login/";
-}
-
-/* =====================================================
+/* =============================
    LORDICON FIX
-   ===================================================== */
-
+   ============================= */
 function forceLordiconReload() {
   if (!window.customElements?.get("lord-icon")) return;
 
