@@ -1,47 +1,66 @@
 /* =====================================================
-   LANDING PAGE — LinkVRFz
+   LANDING PAGE LOGIC — LinkVRFz
    ===================================================== */
 
-import { auth } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+document.addEventListener("DOMContentLoaded", () => {
+  const navAuth = document.getElementById("navAuth");
+  const heroPrimary = document.getElementById("heroPrimary");
 
-/* =============================
-   ELEMENTS
-   ============================= */
-const nav = document.querySelector(".nav");
-const createBtn = document.querySelector(".btn.primary");
-const downloadBtn = document.querySelector(".btn.secondary");
+  const user = getCurrentUser();
 
-/* =============================
-   AUTH STATE
-   ============================= */
-onAuthStateChanged(auth, (user) => {
+  /* =============================
+     AUTH STATE UI
+     ============================= */
   if (user) {
-    console.log("User logged in:", user.uid);
+    // Navbar
+    navAuth.textContent = "Dashboard";
+    navAuth.href = "/dashboard/";
 
-    // Ubah CTA utama
-    if (createBtn) {
-      createBtn.textContent = "Dashboard";
-      createBtn.href = "/dashboard/";
-    }
-
+    // Hero button
+    heroPrimary.textContent = "Dashboard";
+    heroPrimary.href = "/dashboard/";
   } else {
-    console.log("User not logged in");
+    // Belum login
+    navAuth.textContent = "Login";
+    navAuth.href = "/login/";
 
-    if (createBtn) {
-      createBtn.textContent = "Buat Link";
-      createBtn.href = "/create/";
-    }
+    heroPrimary.textContent = "Buat Link";
+    heroPrimary.href = "/login/";
   }
+
+  /* =============================
+     FORCE LORDICON REFRESH
+     (fix icon gak muncul di device lain)
+     ============================= */
+  forceLordiconReload();
 });
 
-/* =============================
-   NAVBAR SCROLL EFFECT
-   ============================= */
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 10) {
-    nav.classList.add("nav-scrolled");
-  } else {
-    nav.classList.remove("nav-scrolled");
+/* =====================================================
+   SIMULATED AUTH (TEMP)
+   ===================================================== */
+
+function getCurrentUser() {
+  try {
+    return JSON.parse(localStorage.getItem("linkvrfz:user"));
+  } catch {
+    return null;
   }
-});
+}
+
+/* =====================================================
+   LORDICON FIX
+   ===================================================== */
+
+function forceLordiconReload() {
+  if (!window.customElements?.get("lord-icon")) return;
+
+  document.querySelectorAll("lord-icon").forEach(icon => {
+    const src = icon.getAttribute("src");
+    icon.removeAttribute("src");
+
+    // trigger reload
+    setTimeout(() => {
+      icon.setAttribute("src", src);
+    }, 50);
+  });
+}
