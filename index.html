@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/landing.css">
 
-  <!-- LORDICON (LOAD SEKALI) -->
+  <!-- LORDICON -->
   <script src="https://cdn.lordicon.com/lordicon.js"></script>
 </head>
 <body>
 
   <!-- NAVBAR -->
-  <header class="nav" id="navbar">
+  <header class="nav">
     <div class="logo">
       LinkVRFz <span class="badge">BETA</span>
     </div>
@@ -36,8 +36,14 @@
         <span>Toko</span>
       </a>
 
-      <!-- LOGIN / DASHBOARD (DIKONTROL JS) -->
-      <a href="/login/" class="btn secondary nav-login" id="navAuth">
+      <!-- PROFILE (HIDDEN DEFAULT) -->
+      <div id="navProfile" class="nav-profile hidden">
+        <span id="profileLabel">FREE</span>
+        <a href="/dashboard/" class="profile-btn">Profile</a>
+      </div>
+
+      <!-- LOGIN -->
+      <a href="/login/" class="btn secondary" id="navLogin">
         Login
       </a>
     </nav>
@@ -69,9 +75,8 @@
         src="https://cdn.lordicon.com/wsbmifnf.json"
         trigger="loop"
         delay="300"
-        stroke="bold"
         colors="primary:#ffffff,secondary:#ffc738"
-        style="width:120px;height:120px;margin-bottom:10px">
+        style="width:120px;height:120px">
       </lord-icon>
       <h3>Auto Generate</h3>
       <p>Buat link verifikasi dengan cepat & simpel.</p>
@@ -82,9 +87,8 @@
         src="https://cdn.lordicon.com/maltvyiw.json"
         trigger="loop"
         delay="300"
-        stroke="bold"
         colors="primary:#ffffff,secondary:#ffc738"
-        style="width:120px;height:120px;margin-bottom:10px">
+        style="width:120px;height:120px">
       </lord-icon>
       <h3>Verified Flow</h3>
       <p>Proteksi link download dengan sistem task.</p>
@@ -95,9 +99,8 @@
         src="https://cdn.lordicon.com/oqhlhtfq.json"
         trigger="loop"
         delay="300"
-        stroke="bold"
         colors="primary:#ffffff,secondary:#ffc738"
-        style="width:120px;height:120px;margin-bottom:10px">
+        style="width:120px;height:120px">
       </lord-icon>
       <h3>Fast & Lightweight</h3>
       <p>Tanpa framework berat & loading cepat.</p>
