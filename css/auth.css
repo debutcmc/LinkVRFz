@@ -1,3 +1,7 @@
+/* ============================= */
+/* AUTH PAGE — LinkVRFz */
+/* ============================= */
+
 * {
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
@@ -5,13 +9,18 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
   background: #0f0f0f;
   color: #fff;
-  min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* ============================= */
+/* CONTAINER */
+/* ============================= */
 
 .auth-container {
   width: 100%;
@@ -20,49 +29,80 @@ body {
 
 .auth-card {
   max-width: 380px;
-  margin: auto;
+  margin: 0 auto;
   background: #111;
   border: 1px solid #222;
-  border-radius: 14px;
-  padding: 28px;
-  box-shadow: 0 0 40px rgba(0,0,0,.4);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+
+  box-shadow: 0 0 40px rgba(0,0,0,.5);
 }
 
+/* ============================= */
+/* TEXT */
+/* ============================= */
+
 .auth-card h1 {
-  text-align: center;
   margin-bottom: 6px;
+  font-size: 26px;
+  letter-spacing: 0.5px;
 }
 
 .subtitle {
-  text-align: center;
   font-size: 14px;
   color: #aaa;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
+
+.note {
+  margin-top: 18px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* ============================= */
+/* INPUT */
+/* ============================= */
 
 .auth-card input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+
   border-radius: 10px;
   border: 1px solid #222;
   background: #0f0f0f;
   color: #fff;
+  font-size: 14px;
+
+  transition: border .2s, box-shadow .2s;
+}
+
+.auth-card input::placeholder {
+  color: #555;
 }
 
 .auth-card input:focus {
   outline: none;
   border-color: #00ffae;
+  box-shadow: 0 0 0 2px rgba(0,255,174,.15);
 }
+
+/* ============================= */
+/* BUTTON */
+/* ============================= */
 
 .btn {
   width: 100%;
   padding: 12px;
   border-radius: 10px;
   border: none;
-  font-weight: bold;
   cursor: pointer;
-  margin-bottom: 10px;
+
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 8px;
 }
 
 .btn.primary {
@@ -70,16 +110,26 @@ body {
   color: #000;
 }
 
+.btn.primary:hover {
+  filter: brightness(0.95);
+}
+
 .btn.secondary {
   background: transparent;
-  border: 1px solid #00ffae;
   color: #00ffae;
+  border: 1px solid #00ffae;
 }
 
-.note {
-  text-align: center;
-  font-size: 12px;
-  color: #777;
-  margin-top: 10px;
+.btn.secondary:hover {
+  background: rgba(0,255,174,.08);
 }
 
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width: 420px) {
+  .auth-card {
+    padding: 24px;
+  }
+}
