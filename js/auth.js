@@ -1,17 +1,18 @@
 // /js/auth.js
 import { auth, db } from "./firebase.js";
+
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 import {
   doc,
   setDoc,
   getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =============================
    GLOBAL AUTH STATE
@@ -29,7 +30,7 @@ onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   authReady = true;
 
-  // pastikan user doc ada
+  // OPTIONAL: auto-create user doc if missing
   if (user) {
     const ref = doc(db, "users", user.uid);
     const snap = await getDoc(ref);
@@ -48,7 +49,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* =============================
-   PUBLIC API
+   WAIT AUTH READY
    ============================= */
 
 export function waitAuthReady() {
@@ -67,6 +68,48 @@ export function isLoggedIn() {
 }
 
 /* =============================
+   REGISTER (FIXED)
+   ============================= */
+
+export async function register(email, password) {
+  if (!email || !password) {
+    throw new Error("Email dan password wajib diisi");
+  }
+
+  if (password.length < 6) {
+    throw new Error("Password minimal 6 karakter");
+  }
+
+  try {
+    console.log("REGISTER START");
+
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const user = cred.user;
+    console.log("AUTH OK:", user.uid);
+
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      role: "user",
+      premium: false,
+      createdAt: Date.now()
+    });
+
+    console.log("FIRESTORE OK");
+
+    location.href = "/dashboard/";
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+    alert(err.message);
+    throw err;
+  }
+}
+
+/* =============================
    LOGIN
    ============================= */
 
@@ -81,32 +124,6 @@ export async function login(email, password) {
   sessionStorage.removeItem("linkvrfz:redirect");
 
   location.href = redirect || "/dashboard/";
-}
-
-/* =============================
-   REGISTER
-   ============================= */
-
-export async function register(email, password) {
-  if (!email || !password) {
-    throw new Error("Email dan password wajib diisi");
-  }
-
-  if (password.length < 6) {
-    throw new Error("Password minimal 6 karakter");
-  }
-
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
-  const user = cred.user;
-
-  await setDoc(doc(db, "users", user.uid), {
-    email: user.email,
-    role: "user",
-    premium: false,
-    createdAt: Date.now()
-  });
-
-  location.href = "/dashboard/";
 }
 
 /* =============================
