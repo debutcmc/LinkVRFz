@@ -1,68 +1,97 @@
 /* =====================================================
-   LINKVRFz - GO.JS (TOKEN LOCKER FINAL)
+   LINKVRFz - GO.JS (FIRESTORE TOKEN LOCKER)
    ===================================================== */
 
-/* ============================= */
-/* GLOBAL STATE */
-/* ============================= */
+import { db } from "/js/firebase.js";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  increment
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* =============================
+   GLOBAL STATE
+   ============================= */
+
 let linkData = null;
 let targetUrl = "#";
 
 let totalTask = 3;
 let currentTask = 0;
 let tasksDone = [];
-let taskTimer = null;
 
-/* ============================= */
-/* GET TOKEN */
-/* ============================= */
+/* =============================
+   GET LINK ID
+   ============================= */
+
 const params = new URLSearchParams(window.location.search);
-const token = params.get("v");
+const linkId = params.get("id");
 
-if (!token) {
-  fatalError("Token tidak ditemukan");
+if (!linkId) {
+  fatalError("ID link tidak ditemukan");
 }
 
-/* ============================= */
-/* RESOLVE TOKEN (LOCAL MODE) */
-/* ============================= */
-try {
-  const raw = localStorage.getItem("linkvrfz:" + token);
-  if (!raw) fatalError("Link tidak valid atau sudah dihapus");
+/* =============================
+   LOAD LINK FROM FIRESTORE
+   ============================= */
 
-  linkData = JSON.parse(raw);
+(async function init() {
+  try {
+    const linkRef = doc(db, "links", linkId);
+    const snap = await getDoc(linkRef);
 
-  if (!linkData.targetUrl || !linkData.expiredAt) {
-    fatalError("Data link rusak");
+    if (!snap.exists()) {
+      fatalError("Link tidak valid atau telah dihapus");
+    }
+
+    linkData = snap.data();
+
+    if (Date.now() > linkData.expiredAt) {
+      fatalError("Link sudah expired");
+    }
+
+    targetUrl = linkData.targetUrl;
+
+    /* 🔥 KUNCI TOKEN SEKALI SAJA */
+    if (!linkData.tokenUsed) {
+      await updateDoc(linkRef, {
+        tokenUsed: true
+      });
+
+      const userRef = doc(db, "users", linkData.ownerId);
+      await updateDoc(userRef, {
+        token: increment(-1)
+      });
+    }
+
+    startUI();
+  } catch (err) {
+    console.error(err);
+    fatalError("Gagal memuat link");
   }
+})();
 
-  if (Date.now() > linkData.expiredAt) {
-    fatalError("Link sudah expired");
-  }
+/* =============================
+   UI FLOW
+   ============================= */
 
-  targetUrl = linkData.targetUrl;
-} catch (e) {
-  fatalError("Gagal memuat link");
+function startUI() {
+  tasksDone = new Array(totalTask).fill(false);
+
+  setTimeout(() => {
+    hide("stepVerify");
+    showFileCard();
+  }, 1800);
 }
 
-/* ============================= */
-/* INIT */
-/* ============================= */
-tasksDone = new Array(totalTask).fill(false);
+/* =============================
+   FILE CARD
+   ============================= */
 
-setTimeout(() => {
-  hide("stepVerify");
-  showFileCard();
-}, 2000);
-
-/* ============================= */
-/* FILE CARD */
-/* ============================= */
 function showFileCard() {
-  const fileNameEl = document.getElementById("fileName");
-  if (fileNameEl) {
-    fileNameEl.innerText = linkData.title || "Download File";
-  }
+  document.getElementById("fileName").innerText =
+    linkData.title || "Download File";
 
   show("stepFile");
 
@@ -70,12 +99,13 @@ function showFileCard() {
     hide("stepFile");
     show("stepTask");
     initTasks();
-  }, 1600);
+  }, 1500);
 }
 
-/* ============================= */
-/* TASK SYSTEM */
-/* ============================= */
+/* =============================
+   TASK SYSTEM
+   ============================= */
+
 function initTasks() {
   const tasks = document.querySelectorAll(".task");
 
@@ -97,13 +127,10 @@ function unlockTask(task, index) {
 }
 
 function startTask(index) {
-  if (index !== currentTask) return;
-  if (tasksDone[index]) return;
+  if (index !== currentTask || tasksDone[index]) return;
 
   const task = document.querySelectorAll(".task")[index];
-  if (!task) return;
 
-  /* 🔥 OPEN SMARTLINK */
   window.open(
     "https://www.effectivegatecpm.com/h06jd728?key=243d13fa860cbf346b1d7cc99aa435f9",
     "_blank"
@@ -113,12 +140,12 @@ function startTask(index) {
   task.innerText = `⏳ Verifikasi (${seconds}s)`;
   task.style.pointerEvents = "none";
 
-  taskTimer = setInterval(() => {
+  const timer = setInterval(() => {
     seconds--;
     task.innerText = `⏳ Verifikasi (${seconds}s)`;
 
     if (seconds <= 0) {
-      clearInterval(taskTimer);
+      clearInterval(timer);
       completeTask(index);
     }
   }, 1000);
@@ -127,15 +154,16 @@ function startTask(index) {
 function completeTask(index) {
   tasksDone[index] = true;
 
-  const tasks = document.querySelectorAll(".task");
-  const task = tasks[index];
-
+  const task = document.querySelectorAll(".task")[index];
   task.classList.add("done");
   task.innerText = "✔ Task selesai";
 
   currentTask++;
-  if (tasks[currentTask]) {
-    unlockTask(tasks[currentTask], currentTask);
+  if (document.querySelectorAll(".task")[currentTask]) {
+    unlockTask(
+      document.querySelectorAll(".task")[currentTask],
+      currentTask
+    );
   }
 
   updateProgress();
@@ -143,15 +171,11 @@ function completeTask(index) {
 
 function updateProgress() {
   const done = tasksDone.filter(Boolean).length;
-  const percent = Math.round((done / totalTask) * 100);
-
-  const bar = document.getElementById("progressBar");
-  if (bar) bar.style.width = percent + "%";
+  document.getElementById("progressBar").style.width =
+    Math.round((done / totalTask) * 100) + "%";
 
   if (done === totalTask) {
     const btn = document.getElementById("taskBtn");
-    if (!btn) return;
-
     btn.disabled = false;
     btn.innerText = "LANJUTKAN";
     btn.onclick = () => {
@@ -162,35 +186,33 @@ function updateProgress() {
   }
 }
 
-/* ============================= */
-/* SCROLL → DOWNLOAD */
-/* ============================= */
+/* =============================
+   SCROLL → DOWNLOAD
+   ============================= */
+
 window.addEventListener("scroll", () => {
   const article = document.getElementById("stepArticle");
   const btn = document.getElementById("downloadBtn");
 
   if (!article || article.style.display === "none") return;
 
-  if (
-    window.innerHeight + window.scrollY >=
-    document.body.offsetHeight - 50
-  ) {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
     btn.style.display = "block";
   }
 });
 
-function continueDownload() {
-  if (!targetUrl || targetUrl === "#") {
-    alert("Link download tidak valid");
+window.continueDownload = function () {
+  if (!targetUrl) {
+    alert("Link tidak valid");
     return;
   }
-
   window.location.href = targetUrl;
-}
+};
 
-/* ============================= */
-/* HELPERS */
-/* ============================= */
+/* =============================
+   HELPERS
+   ============================= */
+
 function show(id) {
   const el = document.getElementById(id);
   if (el) el.style.display = "block";
