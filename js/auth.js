@@ -28,7 +28,7 @@ onAuthStateChanged(auth, async (user) => {
     const ref = doc(db, "users", user.uid);
     const snap = await getDoc(ref);
 
-    // ✅ USER DOC HANYA DIBUAT DI SINI
+    // ✅ USER DOC HANYA DIBUAT DI SINI (SINGLE SOURCE OF TRUTH)
     if (!snap.exists()) {
       await setDoc(ref, {
         email: user.email,
@@ -71,6 +71,7 @@ export async function login(email, password) {
 
   const redirect = sessionStorage.getItem("linkvrfz:redirect");
   sessionStorage.removeItem("linkvrfz:redirect");
+
   location.href = redirect || "/dashboard/";
 }
 
@@ -85,10 +86,10 @@ export async function register(email, password) {
     throw new Error("Password minimal 6 karakter");
   }
 
-  // ❌ TIDAK ADA FIRESTORE DI SINI
+  // ❌ TIDAK BOLEH setDoc DI SINI (ANTI DOUBLE CREATE)
   await createUserWithEmailAndPassword(auth, email, password);
 
-  // redirect ditangani setelah auth ready
+  // user doc akan dibuat oleh auth observer
   location.href = "/dashboard/";
 }
 
