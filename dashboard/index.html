@@ -1,24 +1,48 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard — LinkVRFz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Verifying — LinkVRFz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/go.css" />
 </head>
 <body>
 
-<header>
-  <h2>Dashboard</h2>
-  <button id="logoutBtn">Logout</button>
-</header>
+<div id="app">
 
-<main>
-  <p>Selamat datang di Dashboard LinkVRFz</p>
-</main>
+  <div id="stepVerify">
+    <p>🔒 Memverifikasi link & session...</p>
+  </div>
 
-<script type="module" src="/js/dashboard.js"></script>
+  <div id="stepFile" style="display:none">
+    <h3 id="fileName"></h3>
+  </div>
+
+  <div id="stepTask" style="display:none">
+    <div id="progress">
+      <div id="progressBar"></div>
+    </div>
+
+    <div class="task">Task 1</div>
+    <div class="task">Task 2</div>
+    <div class="task">Task 3</div>
+
+    <button id="taskBtn" disabled>SELESAIKAN TASK</button>
+  </div>
+
+  <div id="stepArticle" style="display:none">
+    <p>Scroll sampai bawah untuk lanjut</p>
+    <button id="downloadBtn"
+      onclick="continueDownload()"
+      style="display:none">
+      DOWNLOAD
+    </button>
+  </div>
+
+</div>
+
+<!-- 🔥 INI PALING PENTING -->
+<script type="module" src="/download/go/go.js"></script>
 </body>
 </html>
-
