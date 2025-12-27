@@ -3,32 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <title>Login — LinkVRFz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
 
-<h2>Login / Register</h2>
+<div class="auth-container">
+  <div class="auth-card">
 
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
+    <h1>LinkVRFz</h1>
+    <p class="subtitle">Login untuk membuat & mengelola link</p>
 
-<button id="loginBtn">Login</button>
-<button id="registerBtn">Register</button>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+
+    <button id="loginBtn" class="btn primary">Login</button>
+    <button id="registerBtn" class="btn secondary">Register</button>
+
+    <p class="note">
+      Belum punya akun? Klik <b>Register</b>
+    </p>
+
+  </div>
+</div>
 
 <script type="module">
   import { login, register, initAuthGuard } from "/js/auth.js";
 
+  // kalau sudah login, jangan boleh ke halaman login
   initAuthGuard(true);
 
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
 
-  document.getElementById("loginBtn").onclick = () => {
-    login(emailInput.value, passwordInput.value).catch(alert);
+  document.getElementById("loginBtn").onclick = async () => {
+    try {
+      await login(emailInput.value, passwordInput.value);
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
-  document.getElementById("registerBtn").onclick = () => {
-    register(emailInput.value, passwordInput.value).catch(alert);
+  document.getElementById("registerBtn").onclick = async () => {
+    try {
+      await register(emailInput.value, passwordInput.value);
+    } catch (err) {
+      alert(err.message);
+    }
   };
 </script>
 
