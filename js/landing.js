@@ -1,42 +1,42 @@
 /* =====================================================
-   LANDING PAGE LOGIC — LinkVRFz
+   LANDING PAGE LOGIC — LinkVRFz (UX FIXED)
    ===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const navAuth = document.getElementById("navAuth");
   const heroPrimary = document.getElementById("heroPrimary");
+  const navLoginBtn = document.getElementById("navLoginBtn");
 
   const user = getCurrentUser();
 
   /* =============================
-     AUTH STATE UI
+     NAVBAR LOGIN BUTTON
      ============================= */
   if (user) {
-    // Navbar
-    navAuth.textContent = "Dashboard";
-    navAuth.href = "/dashboard/";
-
-    // Hero button
-    heroPrimary.textContent = "Dashboard";
-    heroPrimary.href = "/dashboard/";
+    navLoginBtn.textContent = "Dashboard";
+    navLoginBtn.href = "/dashboard/";
   } else {
-    // Belum login
-    navAuth.textContent = "Login";
-    navAuth.href = "/login/";
-
-    heroPrimary.textContent = "Buat Link";
-    heroPrimary.href = "/login/";
+    navLoginBtn.textContent = "Login";
+    navLoginBtn.href = "/login/";
   }
 
   /* =============================
-     FORCE LORDICON REFRESH
-     (fix icon gak muncul di device lain)
+     HERO CTA CLICK GUARD
+     ============================= */
+  heroPrimary.addEventListener("click", (e) => {
+    if (!user) {
+      e.preventDefault();
+      redirectToLoginWithReason();
+    }
+  });
+
+  /* =============================
+     LORDICON FIX
      ============================= */
   forceLordiconReload();
 });
 
 /* =====================================================
-   SIMULATED AUTH (TEMP)
+   AUTH (TEMP)
    ===================================================== */
 
 function getCurrentUser() {
@@ -45,6 +45,20 @@ function getCurrentUser() {
   } catch {
     return null;
   }
+}
+
+/* =====================================================
+   LOGIN REDIRECT UX
+   ===================================================== */
+
+function redirectToLoginWithReason() {
+  sessionStorage.setItem(
+    "linkvrfz:redirect",
+    location.pathname
+  );
+
+  alert("Login dulu untuk membuat link ✨");
+  location.href = "/login/";
 }
 
 /* =====================================================
@@ -57,10 +71,6 @@ function forceLordiconReload() {
   document.querySelectorAll("lord-icon").forEach(icon => {
     const src = icon.getAttribute("src");
     icon.removeAttribute("src");
-
-    // trigger reload
-    setTimeout(() => {
-      icon.setAttribute("src", src);
-    }, 50);
+    setTimeout(() => icon.setAttribute("src", src), 50);
   });
 }
