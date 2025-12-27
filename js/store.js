@@ -1,9 +1,10 @@
 /* =====================================================
-   STORE LOGIC — LinkVRFz
+   STORE LOGIC — LinkVRFz (SECURE)
    ===================================================== */
 
 import { auth, db } from "./firebase.js";
 import { waitAuthReady } from "./auth.js";
+
 import {
   doc,
   getDoc,
@@ -31,16 +32,23 @@ const snap = await getDoc(userRef);
 
 if (!snap.exists()) {
   alert("Data user tidak ditemukan");
-  throw new Error("User doc missing");
+  throw new Error("User document missing");
 }
 
 const userData = snap.data();
 
-document.getElementById("coinBalance").textContent = userData.coin;
-document.getElementById("tokenBalance").textContent = userData.token;
+/* =============================
+   RENDER BALANCE
+   ============================= */
+
+document.getElementById("coinBalance").textContent =
+  userData.coin ?? 0;
+
+document.getElementById("tokenBalance").textContent =
+  userData.tokenQuota ?? 0;
 
 /* =============================
-   BUY HANDLER
+   BUY BUTTON HANDLER
    ============================= */
 
 document.querySelectorAll(".buy-btn").forEach(btn => {
@@ -49,32 +57,38 @@ document.querySelectorAll(".buy-btn").forEach(btn => {
     const amount = Number(btn.dataset.amount || 0);
 
     if (type === "token") {
-      buyToken(amount);
+      await buyToken(amount);
     }
 
     if (type === "premium") {
-      buyPremium();
+      await buyPremium();
     }
   });
 });
 
 /* =============================
-   BUY TOKEN
+   BUY TOKEN (230 COIN / TOKEN)
    ============================= */
 
 async function buyToken(amount) {
-  const cost = amount === 1 ? 230 : 1000;
+  if (amount <= 0) return;
+
+  const cost = amount * 230;
 
   if (userData.coin < cost) {
     alert("Coin tidak cukup");
     return;
   }
 
-  if (!confirm(`Beli ${amount} token seharga ${cost} coin?`)) return;
+  const ok = confirm(
+    `Beli ${amount} token seharga ${cost} coin?`
+  );
+
+  if (!ok) return;
 
   await updateDoc(userRef, {
     coin: increment(-cost),
-    token: increment(amount)
+    tokenQuota: increment(amount)
   });
 
   alert("Token berhasil dibeli 🎉");
@@ -86,24 +100,29 @@ async function buyToken(amount) {
    ============================= */
 
 async function buyPremium() {
-  if (userData.premium) {
+  if (userData.premium === true) {
     alert("Akun kamu sudah Premium");
     return;
   }
 
-  if (userData.coin < 5000) {
+  const cost = 5000;
+
+  if (userData.coin < cost) {
     alert("Coin tidak cukup untuk upgrade Premium");
     return;
   }
 
-  if (!confirm("Upgrade ke Premium seharga 5000 coin?")) return;
+  const ok = confirm(
+    "Upgrade ke Premium seharga 5000 coin?"
+  );
+
+  if (!ok) return;
 
   await updateDoc(userRef, {
-    coin: increment(-5000),
+    coin: increment(-cost),
     premium: true
   });
 
   alert("Akun kamu sekarang PREMIUM ✨");
   location.reload();
 }
-
