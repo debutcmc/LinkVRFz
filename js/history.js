@@ -1,9 +1,10 @@
 /* =====================================================
-   HISTORY PAGE — LinkVRFz
+   HISTORY PAGE — LinkVRFz (FINAL SAFE VERSION)
    ===================================================== */
 
-import { auth, db } from "./firebase.js";
+import { db } from "./firebase.js";
 import { waitAuthReady } from "./auth.js";
+
 import {
   collection,
   query,
@@ -11,7 +12,8 @@ import {
   getDocs,
   doc,
   updateDoc,
-  increment
+  increment,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =============================
@@ -23,6 +25,7 @@ const user = await waitAuthReady();
 if (!user) {
   sessionStorage.setItem("linkvrfz:redirect", "/history/");
   location.href = "/login/";
+  throw new Error("Not authenticated");
 }
 
 /* =============================
@@ -30,13 +33,21 @@ if (!user) {
    ============================= */
 
 const listEl = document.getElementById("historyList");
+listEl.innerHTML = "<p class='loading'>Memuat history...</p>";
 
-const q = query(
-  collection(db, "links"),
-  where("ownerId", "==", user.uid)
-);
+let snap;
+try {
+  const q = query(
+    collection(db, "links"),
+    where("ownerId", "==", user.uid)
+  );
 
-const snap = await getDocs(q);
+  snap = await getDocs(q);
+} catch (err) {
+  console.error(err);
+  listEl.innerHTML = "<p class='loading'>Gagal memuat history</p>";
+  throw err;
+}
 
 listEl.innerHTML = "";
 
@@ -71,19 +82,29 @@ snap.forEach(docSnap => {
   card.innerHTML = `
     <div class="history-info">
       <h3>${data.title || "Tanpa Judul"}</h3>
+
       <div class="history-meta">
         <span class="status ${status}">${statusText}</span>
-        Dibuat: ${new Date(data.createdAt).toLocaleDateString()}
+        Dibuat: ${
+          data.createdAt
+            ? new Date(data.createdAt).toLocaleDateString()
+            : "-"
+        }
       </div>
     </div>
 
     <div class="history-action">
-      <button onclick="copyLink('${docSnap.id}')">Copy Link</button>
-      ${status !== "expired" ? "" : `
-        <button onclick="extendLink('${docSnap.id}')">
-          Perpanjang
-        </button>
-      `}
+      <button class="small-btn" onclick="copyLink('${docSnap.id}')">
+        Copy Link
+      </button>
+
+      ${
+        status === "expired"
+          ? `<button class="small-btn danger" onclick="requestExtend('${docSnap.id}')">
+               Perpanjang
+             </button>`
+          : ""
+      }
     </div>
   `;
 
@@ -95,25 +116,37 @@ snap.forEach(docSnap => {
    ============================= */
 
 window.copyLink = function (id) {
-  const link = `${location.origin}/download/go/?id=${id}`;
+  const link = `${location.origin}/go/?id=${id}`;
   navigator.clipboard.writeText(link);
-  alert("Link disalin");
+  alert("Link disalin ✔");
 };
 
-window.extendLink = async function (id) {
-  if (!confirm("Perpanjang link 1 hari (230 coin)?")) return;
+/**
+ * ⚠️ AMAN:
+ * - Coin dikurangi
+ * - Flag extend request dibuat
+ * - expiredAt TIDAK diubah di client
+ */
+window.requestExtend = async function (id) {
+  if (!confirm("Ajukan perpanjangan link? (230 coin)")) return;
 
   const userRef = doc(db, "users", user.uid);
   const linkRef = doc(db, "links", id);
 
-  await updateDoc(userRef, {
-    coin: increment(-230)
-  });
+  try {
+    await updateDoc(userRef, {
+      coin: increment(-230)
+    });
 
-  await updateDoc(linkRef, {
-    expiredAt: Date.now() + 86400000
-  });
+    await updateDoc(linkRef, {
+      extendRequested: true,
+      extendRequestedAt: serverTimestamp()
+    });
 
-  alert("Link diperpanjang ✔");
-  location.reload();
+    alert("Permintaan perpanjangan dikirim ✔");
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Gagal mengajukan perpanjangan");
+  }
 };
