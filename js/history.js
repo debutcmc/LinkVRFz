@@ -1,19 +1,15 @@
 /* =====================================================
-   HISTORY PAGE — LinkVRFz (FINAL SAFE VERSION)
+   HISTORY PAGE — LinkVRFz (FINAL & SAFE)
    ===================================================== */
 
-import { db } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 import { waitAuthReady } from "./auth.js";
 
 import {
   collection,
   query,
   where,
-  getDocs,
-  doc,
-  updateDoc,
-  increment,
-  serverTimestamp
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =============================
@@ -25,27 +21,29 @@ const user = await waitAuthReady();
 if (!user) {
   sessionStorage.setItem("linkvrfz:redirect", "/history/");
   location.href = "/login/";
-  throw new Error("Not authenticated");
 }
+
+/* =============================
+   ELEMENT
+   ============================= */
+
+const listEl = document.getElementById("historyList");
 
 /* =============================
    LOAD HISTORY
    ============================= */
 
-const listEl = document.getElementById("historyList");
-listEl.innerHTML = "<p class='loading'>Memuat history...</p>";
+const q = query(
+  collection(db, "links"),
+  where("ownerId", "==", user.uid)
+);
 
 let snap;
 try {
-  const q = query(
-    collection(db, "links"),
-    where("ownerId", "==", user.uid)
-  );
-
   snap = await getDocs(q);
 } catch (err) {
   console.error(err);
-  listEl.innerHTML = "<p class='loading'>Gagal memuat history</p>";
+  listEl.innerHTML = "<p class='loading'>Gagal memuat data</p>";
   throw err;
 }
 
@@ -63,48 +61,44 @@ snap.forEach(docSnap => {
   const data = docSnap.data();
   const now = Date.now();
 
+  const expiredAt = data.expiredAt;
+  const warnAt = data.warnAt || (expiredAt - 86400000); // fallback 1 hari
+
   let status = "active";
   let statusText = "Aktif";
 
-  const remain = data.expiredAt - now;
-
-  if (remain <= 0) {
+  if (now >= expiredAt) {
     status = "expired";
     statusText = "Expired";
-  } else if (remain < 86400000 * 2) {
+  } else if (now >= warnAt) {
     status = "soon";
     statusText = "Hampir Habis";
   }
+
+  const remainMs = Math.max(expiredAt - now, 0);
+  const remainText = formatRemain(remainMs);
 
   const card = document.createElement("div");
   card.className = "history-card";
 
   card.innerHTML = `
     <div class="history-info">
-      <h3>${data.title || "Tanpa Judul"}</h3>
-
+      <h3>${escapeHtml(data.title || "Tanpa Judul")}</h3>
       <div class="history-meta">
         <span class="status ${status}">${statusText}</span>
-        Dibuat: ${
-          data.createdAt
-            ? new Date(data.createdAt).toLocaleDateString()
-            : "-"
-        }
+        Sisa: ${remainText}<br>
+        Dibuat: ${new Date(data.createdAt).toLocaleDateString()}
       </div>
     </div>
 
     <div class="history-action">
-      <button class="small-btn" onclick="copyLink('${docSnap.id}')">
-        Copy Link
-      </button>
+      <button onclick="copyLink('${docSnap.id}')">Copy Link</button>
 
-      ${
-        status === "expired"
-          ? `<button class="small-btn danger" onclick="requestExtend('${docSnap.id}')">
-               Perpanjang
-             </button>`
-          : ""
-      }
+      ${status !== "active" ? `
+        <button onclick="extendLink('${docSnap.id}')">
+          Perpanjang
+        </button>
+      ` : ""}
     </div>
   `;
 
@@ -116,37 +110,45 @@ snap.forEach(docSnap => {
    ============================= */
 
 window.copyLink = function (id) {
-  const link = `${location.origin}/go/?id=${id}`;
+  const link = `${location.origin}/download/go/?id=${id}`;
   navigator.clipboard.writeText(link);
-  alert("Link disalin ✔");
+  alert("Link disalin");
 };
 
-/**
- * ⚠️ AMAN:
- * - Coin dikurangi
- * - Flag extend request dibuat
- * - expiredAt TIDAK diubah di client
- */
-window.requestExtend = async function (id) {
-  if (!confirm("Ajukan perpanjangan link? (230 coin)")) return;
+window.extendLink = function (id) {
+  alert(
+    "⚠️ Perpanjangan link akan diproses via sistem.\n" +
+    "Pastikan coin kamu cukup."
+  );
 
-  const userRef = doc(db, "users", user.uid);
-  const linkRef = doc(db, "links", id);
-
-  try {
-    await updateDoc(userRef, {
-      coin: increment(-230)
-    });
-
-    await updateDoc(linkRef, {
-      extendRequested: true,
-      extendRequestedAt: serverTimestamp()
-    });
-
-    alert("Permintaan perpanjangan dikirim ✔");
-    location.reload();
-  } catch (err) {
-    console.error(err);
-    alert("Gagal mengajukan perpanjangan");
-  }
+  // ⛔️ SENGAJA BELUM UPDATE DI CLIENT
+  // nanti kita pindahkan ke Cloud Function
 };
+
+/* =============================
+   HELPERS
+   ============================= */
+
+function formatRemain(ms) {
+  if (ms <= 0) return "0 menit";
+
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  const d = Math.floor(h / 24);
+
+  if (d > 0) return `${d} hari`;
+  if (h > 0) return `${h} jam`;
+  if (m > 0) return `${m} menit`;
+  return `${s} detik`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[m]));
+}
