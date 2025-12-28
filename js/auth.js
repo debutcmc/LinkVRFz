@@ -26,21 +26,33 @@ onAuthStateChanged(auth, async (user) => {
 
   if (user) {
     const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
 
-    // USER DOC HANYA DIBUAT DI SINI
+    let snap;
+    try {
+      snap = await getDoc(ref);
+    } catch (err) {
+      console.warn("⚠️ getDoc blocked sementara, skip init user");
+      listeners.forEach(cb => cb(user));
+      return;
+    }
+
+    // USER DOC DIBUAT SEKALI (AMAN)
     if (!snap.exists()) {
-      await setDoc(ref, {
-        email: user.email,
-        role: "user",
-        premium: false,
+      try {
+        await setDoc(ref, {
+          email: user.email,
+          role: "user",
+          premium: false,
 
-        coin: 300,
-        tokenQuota: 15,
-        totalLink: 0,
+          coin: 300,
+          tokenQuota: 15,
+          totalLink: 0,
 
-        createdAt: Date.now()
-      });
+          createdAt: Date.now()
+        });
+      } catch (err) {
+        console.error("❌ Gagal create user doc", err);
+      }
     }
   }
 
@@ -61,11 +73,7 @@ export function getCurrentUser() {
 }
 
 /* ================= AUTH GUARD ================= */
-/**
- * @param {boolean} redirectIfLoggedIn
- * true  = halaman login/register (jangan boleh masuk kalau sudah login)
- * false = halaman protected (harus login)
- */
+
 export async function initAuthGuard(redirectIfLoggedIn = false) {
   const user = await waitAuthReady();
 
