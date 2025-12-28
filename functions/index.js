@@ -8,7 +8,15 @@ const db = admin.firestore();
    UTILS
    ===================================================== */
 
-function calcDurationMs({ days = 0, hours = 0, minutes = 0, seconds = 0 }) {
+/**
+ * Hitung durasi ke millisecond
+ */
+function calcDurationMs({
+  days = 0,
+  hours = 0,
+  minutes = 0,
+  seconds = 0
+}) {
   return (
     days * 86400000 +
     hours * 3600000 +
@@ -17,17 +25,23 @@ function calcDurationMs({ days = 0, hours = 0, minutes = 0, seconds = 0 }) {
   );
 }
 
+/**
+ * Tentukan waktu peringatan (warnAt)
+ */
 function calcWarnAt(expiredAtMs, durationMs) {
   let warningOffset;
 
-  if (durationMs >= 86400000 * 30) {
-    // ≥ 30 hari → 10 hari
+  if (durationMs >= 86400000 * 365) {
+    // ≥ 1 tahun → 10 hari sebelum
     warningOffset = 86400000 * 10;
+  } else if (durationMs >= 86400000 * 30) {
+    // ≥ 30 hari → 7 hari
+    warningOffset = 86400000 * 7;
   } else if (durationMs >= 86400000 * 7) {
     // 7–29 hari → 1 hari
     warningOffset = 86400000;
   } else {
-    // < 24 jam → 20%
+    // < 7 hari → 20%
     warningOffset = Math.floor(durationMs * 0.2);
   }
 
@@ -35,7 +49,7 @@ function calcWarnAt(expiredAtMs, durationMs) {
 }
 
 /* =====================================================
-   EXTEND LINK (SECURE)
+   EXTEND LINK (CLOUD FUNCTION — SECURE CORE)
    ===================================================== */
 
 exports.extendLinkDuration = functions.https.onCall(
@@ -51,12 +65,19 @@ exports.extendLinkDuration = functions.https.onCall(
     }
 
     const uid = context.auth.uid;
-    const { linkId, duration } = data;
+    const { linkId, duration } = data || {};
 
-    if (!linkId || !duration) {
+    if (!linkId || typeof linkId !== "string") {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "Data tidak lengkap"
+        "linkId tidak valid"
+      );
+    }
+
+    if (!duration || typeof duration !== "object") {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Durasi tidak valid"
       );
     }
 
@@ -65,7 +86,7 @@ exports.extendLinkDuration = functions.https.onCall(
     if (durationMs <= 0) {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "Durasi tidak valid"
+        "Durasi harus lebih dari 0"
       );
     }
 
@@ -77,21 +98,28 @@ exports.extendLinkDuration = functions.https.onCall(
     /* ================= TRANSACTION ================= */
 
     await db.runTransaction(async (tx) => {
+
       const userSnap = await tx.get(userRef);
       const linkSnap = await tx.get(linkRef);
 
       if (!userSnap.exists) {
-        throw new functions.https.HttpsError("not-found", "User tidak ditemukan");
+        throw new functions.https.HttpsError(
+          "not-found",
+          "User tidak ditemukan"
+        );
       }
 
       if (!linkSnap.exists) {
-        throw new functions.https.HttpsError("not-found", "Link tidak ditemukan");
+        throw new functions.https.HttpsError(
+          "not-found",
+          "Link tidak ditemukan"
+        );
       }
 
       const user = userSnap.data();
       const link = linkSnap.data();
 
-      /* ===== OWNERSHIP ===== */
+      /* ================= OWNERSHIP ================= */
 
       if (link.ownerId !== uid) {
         throw new functions.https.HttpsError(
@@ -100,11 +128,11 @@ exports.extendLinkDuration = functions.https.onCall(
         );
       }
 
-      /* ===== COST ===== */
+      /* ================= COST ================= */
       // 1 hari = 230 coin
-      const costPerDay = 230;
+      const COST_PER_DAY = 230;
       const daysEquivalent = Math.ceil(durationMs / 86400000);
-      const cost = daysEquivalent * costPerDay;
+      const cost = daysEquivalent * COST_PER_DAY;
 
       if (user.coin < cost) {
         throw new functions.https.HttpsError(
@@ -113,15 +141,19 @@ exports.extendLinkDuration = functions.https.onCall(
         );
       }
 
-      /* ===== TIME CALC ===== */
+      /* ================= TIME CALC ================= */
+
+      const now = Date.now();
 
       const baseExpiredAt =
-        link.expiredAt > Date.now() ? link.expiredAt : Date.now();
+        link.expiredAt && link.expiredAt > now
+          ? link.expiredAt
+          : now;
 
       const newExpiredAt = baseExpiredAt + durationMs;
       const warnAt = calcWarnAt(newExpiredAt, durationMs);
 
-      /* ===== UPDATE ===== */
+      /* ================= UPDATE ================= */
 
       tx.update(userRef, {
         coin: admin.firestore.FieldValue.increment(-cost)
@@ -139,4 +171,3 @@ exports.extendLinkDuration = functions.https.onCall(
     };
   }
 );
-
